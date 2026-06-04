@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import shutil
 import tempfile
 import unittest
 import zipfile
@@ -28,6 +29,8 @@ class TomogatchiTest(unittest.TestCase):
         self.state = self.root / "state.json"
         self.settings = self.root / "settings.json"
         self.sessions = self.root / "sessions"
+        self.backups = self.root / "backups"
+        self.exports = self.root / "exports"
         self.pet_dir = self.root / "pets" / "codex-tomogatchi"
         self.baby_pet_dir = self.root / "pets" / "codex-tomogatchi-baby"
         self.teen_pet_dir = self.root / "pets" / "codex-tomogatchi-teen"
@@ -39,6 +42,8 @@ class TomogatchiTest(unittest.TestCase):
                 "CODEX_TOMOGATCHI_STATE": str(self.state),
                 "CODEX_TOMOGATCHI_SETTINGS": str(self.settings),
                 "CODEX_TOMOGATCHI_PET_DIR": str(self.pet_dir),
+                "CODEX_TOMOGATCHI_BACKUPS_DIR": str(self.backups),
+                "CODEX_TOMOGATCHI_EXPORTS_DIR": str(self.exports),
                 "CODEX_TOMOGATCHI_SESSIONS_DIR": str(self.sessions),
                 "CODEX_HOME": str(self.root / "codex-home"),
             },
@@ -343,6 +348,36 @@ class TomogatchiTest(unittest.TestCase):
         self.assertIsNone(change)
         self.assertEqual(state["lifecycle"]["status"], "alive")
 
+    def test_doctor_reports_without_requiring_initialized_install(self) -> None:
+        result = tomogatchi.main(["doctor", "--json"])
+
+        self.assertEqual(result, 0)
+
+    def test_backup_create_and_restore_round_trips_state_and_settings(self) -> None:
+        tomogatchi.record_event("UserPromptSubmit", {"prompt": "private prompt"})
+        tomogatchi.main(["settings", "xp.pace", "fast"])
+        backup = self.root / "tomogatchi-backup.zip"
+
+        tomogatchi.main(["backup", "create", "--output", str(backup)])
+
+        tomogatchi.main(["reset", "--confirm"])
+        tomogatchi.main(["settings", "xp.pace", "slow"])
+        with self.assertRaises(SystemExit):
+            tomogatchi.main(["backup", "restore", str(backup)])
+
+        tomogatchi.main(["backup", "restore", str(backup), "--confirm"])
+
+        state = self.load_json()
+        settings = json.loads(self.settings.read_text(encoding="utf-8"))
+        self.assertEqual(state["xp"], tomogatchi.TURN_XP)
+        self.assertEqual(settings["xp"]["pace"], "fast")
+        with zipfile.ZipFile(backup) as archive:
+            names = set(archive.namelist())
+            self.assertIn("state.json", names)
+            self.assertIn("settings.json", names)
+            self.assertIn("metadata.json", names)
+            self.assertNotIn("session.jsonl", names)
+
     def test_care_actions_add_generation_care_points(self) -> None:
         before = tomogatchi.load_state()
         tomogatchi.save_state(before)
@@ -580,6 +615,24 @@ class TomogatchiTest(unittest.TestCase):
 
         with self.assertRaises(SystemExit):
             tomogatchi.main(["pets", "import", str(archive)])
+
+    def test_pet_pack_validate_and_export_create_shareable_zip(self) -> None:
+        source = self.make_pet_pack("share-line", "Share Line")
+        tomogatchi.main(["pets", "validate", str(source)])
+        tomogatchi.main(["pets", "import", str(source), "--select"])
+        exported = self.root / "share-line.zip"
+
+        tomogatchi.main(["pets", "export", "share-line", "--output", str(exported)])
+
+        self.assertTrue(exported.exists())
+        tomogatchi.main(["pets", "validate", str(exported)])
+        with zipfile.ZipFile(exported) as archive:
+            self.assertIn("share-line/pack.json", archive.namelist())
+
+        shutil.rmtree(tomogatchi.pet_pack_root("share-line"))
+        tomogatchi.main(["pets", "import", str(exported), "--select"])
+        settings = json.loads(self.settings.read_text(encoding="utf-8"))
+        self.assertEqual(settings["pets"]["activePack"], "share-line")
 
     def test_branching_pet_pack_can_hatch_selected_starter_from_now(self) -> None:
         source = self.make_branching_pet_pack()

@@ -57,6 +57,7 @@ Use `python3` instead of `py -3` on macOS/Linux.
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care feed
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care rest
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care play
@@ -69,8 +70,22 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
 ```
+
+QoL commands:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup list
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup restore C:\path\backup.zip --confirm
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets validate C:\path\my-pet-line.zip
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets export my-pet-line --output C:\path\my-pet-line.zip
+```
+
+`doctor` checks the local state/settings/pet install paths and flags common setup problems. Backups include Tomogatchi state and settings only; they do not include raw Codex session logs.
 
 ## Settings
 
@@ -191,6 +206,8 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets validate C:\path\my-pet-line.zip
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets export my-pet-line --output C:\path\my-pet-line.zip
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select my-pet-line
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default

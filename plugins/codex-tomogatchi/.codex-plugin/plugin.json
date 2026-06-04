@@ -1,6 +1,6 @@
 {
   "name": "codex-tomogatchi",
-  "version": "0.1.0+codex.20260604061224",
+  "version": "0.1.0+codex.20260604152915",
   "description": "A local Codex virtual pet that grows from privacy-safe Codex activity counters.",
   "author": {
     "name": "Codex Tomogatchi Contributors"

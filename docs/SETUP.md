@@ -42,6 +42,24 @@ npm start
 
 Use `python3` instead of `py -3` on macOS/Linux.
 
+## Diagnostics And Backups
+
+Check common setup issues:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor
+```
+
+Create and restore a state/settings backup:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup list
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup restore C:\path\backup.zip --confirm
+```
+
+Backups do not include raw Codex session logs.
+
 ## Settings
 
 Show settings:
@@ -96,6 +114,13 @@ Import and select a pack:
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
+```
+
+Validate or export a pack for sharing:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets validate C:\path\my-pet-line.zip
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets export my-pet-line --output C:\path\my-pet-line.zip
 ```
 
 Choose a baby starter from a branching pack:

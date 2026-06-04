@@ -12,6 +12,8 @@ Run commands from the repository root when working in a clone:
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status --json
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor --json
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care feed
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care rest
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care play
@@ -32,8 +34,13 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\digimon-world-1-agumon --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets validate C:\path\my-pet-line.zip
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets export my-pet-line --output C:\path\my-pet-line.zip
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup list
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup restore C:\path\backup.zip --confirm
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py reset --confirm
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py reset --confirm --from-now
 npm start
@@ -50,8 +57,10 @@ Use `python3` instead of `py -3` on macOS/Linux.
 - `install` copies all stage packages into `${CODEX_HOME:-~/.codex}/pets/codex-tomogatchi-{stage}` and updates `[desktop].selected-avatar-id`.
 - `profile` reports the current generation's logical evolution path, care mistakes, care points, focus points, training points, care calls, and lineage.
 - `care-call` checks the current active care call. `care-call --force <kind>` creates a test call.
+- `doctor` checks local setup health and common missing files.
+- `backup create|list|restore` manages privacy-safe state/settings backups. Always require `--confirm` for restore.
 - `settings` shows or updates settings under `${CODEX_HOME:-~/.codex}/codex-tomogatchi/settings.json`.
-- `pets list|forms|import|select|hatch` manages asset-only custom pet packs stored under `${CODEX_HOME:-~/.codex}/codex-tomogatchi/pet-packs`.
+- `pets list|forms|import|validate|export|select|hatch` manages asset-only custom pet packs stored under `${CODEX_HOME:-~/.codex}/codex-tomogatchi/pet-packs`.
 - `pets hatch <baby-form-id>` chooses a branching-pack starter and resets to baby from the current session-log position by default.
 - `npm start` launches the Electron overlay with tray, compact/full modes, resizing, and live reactions.
 
@@ -77,7 +86,7 @@ stages/adult/pet.json
 stages/adult/spritesheet.webp
 ```
 
-Use `pets import <path> --select` to install and activate a pack. Use `pets forms` to inspect branching forms, `pets hatch <baby-form-id>` to choose a starter, and `pets select default` to return to the bundled line. Packs are assets only; never run scripts from a pack.
+Use `pets import <path> --select` to install and activate a pack. Use `pets validate <path>` before importing shared packs, `pets export <pack-id>` before sharing installed packs, `pets forms` to inspect branching forms, `pets hatch <baby-form-id>` to choose a starter, and `pets select default` to return to the bundled line. Packs are assets only; never run scripts from a pack.
 
 Branching packs can define `forms` with per-form `assetPath`, optional `evolvesFrom`, and requirements. The bundled example at `examples/pet-packs/digimon-world-1-agumon` uses Digimon World 1-style requirement groups: stats, care mistakes, weight, and bonus, with 3 of 4 groups required by default. Its requirement data is source-backed; its sprites are local concept atlases, not ripped game assets.
 
@@ -111,4 +120,4 @@ Branching packs can define `forms` with per-form `assetPath`, optional `evolvesF
 
 ## Privacy
 
-The hook and session-log paths store aggregate counters, lifecycle timestamps, settings, evolution profile metadata, and reaction metadata only. They must not store prompt text, command text, tool output, screenshots, raw hook payloads, or raw session-log records. If a user asks what is stored, run `status --json` and summarize the JSON keys.
+The hook and session-log paths store aggregate counters, lifecycle timestamps, settings, evolution profile metadata, and reaction metadata only. Backups store state/settings only. They must not store prompt text, command text, tool output, screenshots, raw hook payloads, raw session-log records, or raw session log files. If a user asks what is stored, run `status --json` and summarize the JSON keys.

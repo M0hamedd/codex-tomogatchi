@@ -12,6 +12,8 @@
     "dist:win": "npx --yes electron-builder --win",
     "status": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status",
     "sync": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py sync",
+    "doctor": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor",
+    "backup": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create",
     "test": "py -3 -m unittest discover -s tests -v && node --check overlay/main.js && node --check overlay/preload.js && node --check overlay/renderer.js && py -3 scripts/validate_assets.py"
   },
   "build": {

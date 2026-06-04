@@ -887,6 +887,24 @@ def pet_packs_dir() -> Path:
     return codex_home() / "codex-tomogatchi" / "pet-packs"
 
 
+def backups_dir() -> Path:
+    override = os.environ.get("CODEX_TOMOGATCHI_BACKUPS_DIR")
+    if override:
+        return Path(override).expanduser().resolve()
+    return codex_home() / "codex-tomogatchi" / "backups"
+
+
+def exports_dir() -> Path:
+    override = os.environ.get("CODEX_TOMOGATCHI_EXPORTS_DIR")
+    if override:
+        return Path(override).expanduser().resolve()
+    return codex_home() / "codex-tomogatchi" / "exports"
+
+
+def overlay_log_path() -> Path:
+    return codex_home() / "codex-tomogatchi" / "overlay.log"
+
+
 def validate_pet_pack_id(pack_id: Any) -> str:
     candidate = str(pack_id or "").strip().lower()
     if not PET_PACK_ID_RE.fullmatch(candidate):
@@ -2618,6 +2636,38 @@ def is_safe_zip_member(name: str) -> bool:
     return bool(parts) and all(part not in {".", ".."} for part in parts)
 
 
+def zip_destination(raw_output: str | None, default_dir: Path, default_name: str) -> Path:
+    if raw_output:
+        target = Path(raw_output).expanduser()
+        if target.exists() and target.is_dir():
+            target = target / default_name
+    else:
+        target = default_dir / default_name
+    if target.suffix.lower() != ".zip":
+        target = target.with_suffix(".zip")
+    return target.resolve()
+
+
+def write_zip_from_directory(source_root: Path, destination: Path, *, prefix: str) -> Path:
+    source_root = source_root.expanduser().resolve()
+    destination = destination.expanduser().resolve()
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(prefix="tomogatchi-zip-", suffix=".zip", dir=str(destination.parent), delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+    try:
+        with zipfile.ZipFile(tmp_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for path in sorted(source_root.rglob("*")):
+                if not path.is_file():
+                    continue
+                relative = path.relative_to(source_root).as_posix()
+                archive.write(path, f"{prefix}/{relative}")
+        os.replace(tmp_path, destination)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+    return destination
+
+
 def extract_pet_pack_zip(source: Path, target: Path) -> None:
     with zipfile.ZipFile(source) as archive:
         for member in archive.infolist():
@@ -2631,6 +2681,22 @@ def extract_pet_pack_zip(source: Path, target: Path) -> None:
             destination.parent.mkdir(parents=True, exist_ok=True)
             with archive.open(member) as source_handle, destination.open("wb") as target_handle:
                 shutil.copyfileobj(source_handle, target_handle)
+
+
+def validate_pet_pack_source(source: Path) -> dict[str, Any]:
+    source = source.expanduser().resolve()
+    if not source.exists():
+        raise SystemExit(f"Pet pack source does not exist: {source}")
+    if source.is_file():
+        if source.suffix.lower() != ".zip":
+            raise SystemExit("Pet pack files must be .zip archives.")
+        with tempfile.TemporaryDirectory() as tmp_name:
+            tmp_root = Path(tmp_name)
+            extract_pet_pack_zip(source, tmp_root)
+            return validate_pet_pack_root(find_pet_pack_root(tmp_root))
+    if source.is_dir():
+        return validate_pet_pack_root(source)
+    raise SystemExit(f"Pet pack source must be a folder or .zip file: {source}")
 
 
 def import_pet_pack(source: Path, *, replace: bool = False) -> dict[str, Any]:
@@ -2665,6 +2731,15 @@ def import_pet_pack(source: Path, *, replace: bool = False) -> dict[str, Any]:
             shutil.move(str(staging), destination)
 
     return validate_pet_pack_root(destination)
+
+
+def export_pet_pack(pack_id: str, output: str | None = None) -> Path:
+    pack_id = validate_pet_pack_id(pack_id)
+    if pack_id == BUILTIN_PACK_ID:
+        raise SystemExit("The bundled default pack is not exported through pet-pack export.")
+    pack_root, manifest = load_installed_pet_pack(pack_id)
+    destination = zip_destination(output, exports_dir(), f"{manifest['id']}.codex-pet-pack.zip")
+    return write_zip_from_directory(pack_root, destination, prefix=manifest["id"])
 
 
 def select_pet_pack(pack_id: str) -> Path:
@@ -2705,6 +2780,36 @@ def do_pets_import(args: argparse.Namespace) -> int:
     if args.select:
         target = select_pet_pack(manifest["id"])
         print(f"Selected pet pack '{manifest['id']}' and installed current stage to {target}")
+    return 0
+
+
+def do_pets_validate(args: argparse.Namespace) -> int:
+    manifest = validate_pet_pack_source(Path(args.source))
+    form_count = sum(len(forms) for forms in manifest.get("forms", {}).values() if isinstance(forms, list))
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "id": manifest["id"],
+                    "name": manifest["name"],
+                    "author": manifest.get("author", ""),
+                    "description": manifest.get("description", ""),
+                    "forms": form_count,
+                    "stages": list(STAGES),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+    else:
+        forms = f", {form_count} forms" if form_count else ""
+        print(f"Valid pet pack: {manifest['id']} | {manifest['name']}{forms}")
+    return 0
+
+
+def do_pets_export(args: argparse.Namespace) -> int:
+    target = export_pet_pack(args.pack_id, args.output)
+    print(f"Exported pet pack '{validate_pet_pack_id(args.pack_id)}' to {target}")
     return 0
 
 
@@ -2980,6 +3085,220 @@ def do_care_call(args: argparse.Namespace) -> int:
     return 0
 
 
+def backup_metadata(state: dict[str, Any], settings: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "schemaVersion": 1,
+        "createdAt": now_iso(),
+        "app": PET_ID,
+        "stateSchemaVersion": state.get("schemaVersion", SCHEMA_VERSION),
+        "stage": state.get("stage", "baby"),
+        "formId": state.get("evolution", {}).get("formId", ""),
+        "activePack": settings.get("pets", {}).get("activePack", BUILTIN_PACK_ID),
+        "contains": ["state.json", "settings.json"],
+        "privacy": "Backup contains aggregate Tomogatchi state/settings only, not raw Codex session logs.",
+    }
+
+
+def create_backup(output: str | None = None) -> Path:
+    state = load_state()
+    settings = load_settings()
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    destination = zip_destination(output, backups_dir(), f"codex-tomogatchi-backup-{stamp}.zip")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(prefix="tomogatchi-backup-", suffix=".zip", dir=str(destination.parent), delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+    try:
+        with zipfile.ZipFile(tmp_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("metadata.json", json.dumps(backup_metadata(state, settings), indent=2, sort_keys=True) + "\n")
+            archive.writestr("state.json", json.dumps(state, indent=2, sort_keys=True) + "\n")
+            archive.writestr("settings.json", json.dumps(settings, indent=2, sort_keys=True) + "\n")
+        os.replace(tmp_path, destination)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
+    return destination
+
+
+def iter_backups() -> list[dict[str, Any]]:
+    root = backups_dir()
+    if not root.exists():
+        return []
+    backups = []
+    for path in sorted(root.glob("*.zip"), key=lambda item: item.stat().st_mtime, reverse=True):
+        metadata: dict[str, Any] = {}
+        try:
+            with zipfile.ZipFile(path) as archive:
+                if "metadata.json" in archive.namelist():
+                    metadata = json.loads(archive.read("metadata.json").decode("utf-8"))
+        except (OSError, zipfile.BadZipFile, json.JSONDecodeError):
+            metadata = {}
+        backups.append(
+            {
+                "path": str(path),
+                "name": path.name,
+                "size": path.stat().st_size,
+                "createdAt": metadata.get("createdAt", ""),
+                "stage": metadata.get("stage", ""),
+                "formId": metadata.get("formId", ""),
+                "activePack": metadata.get("activePack", ""),
+            }
+        )
+    return backups
+
+
+def read_backup_json(archive: zipfile.ZipFile, member_name: str) -> Any:
+    names = archive.namelist()
+    matches = [name for name in names if name == member_name or name.endswith(f"/{member_name}")]
+    if not matches:
+        raise SystemExit(f"Backup is missing {member_name}.")
+    try:
+        return json.loads(archive.read(matches[0]).decode("utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"Backup {member_name} is not valid JSON.") from exc
+
+
+def restore_backup(source: Path) -> tuple[dict[str, Any], str]:
+    source = source.expanduser().resolve()
+    if not source.exists():
+        raise SystemExit(f"Backup does not exist: {source}")
+    if source.suffix.lower() != ".zip":
+        raise SystemExit("Backups must be .zip files.")
+    try:
+        with zipfile.ZipFile(source) as archive:
+            for member in archive.infolist():
+                if not is_safe_zip_member(member.filename):
+                    raise SystemExit(f"Unsafe path in backup zip: {member.filename}")
+            raw_state = read_backup_json(archive, "state.json")
+            raw_settings = read_backup_json(archive, "settings.json")
+    except zipfile.BadZipFile as exc:
+        raise SystemExit(f"Backup is not a valid zip file: {source}") from exc
+
+    if not isinstance(raw_state, dict):
+        raise SystemExit("Backup state.json must contain an object.")
+    settings = merge_settings(raw_settings if isinstance(raw_settings, dict) else {})
+    warning = ""
+    pack_id = settings.get("pets", {}).get("activePack", BUILTIN_PACK_ID)
+    if pack_id != BUILTIN_PACK_ID:
+        try:
+            load_installed_pet_pack(pack_id)
+        except SystemExit:
+            warning = f"Active pet pack '{pack_id}' is not installed; restored with bundled pets instead."
+            settings["pets"]["activePack"] = BUILTIN_PACK_ID
+            settings["pets"]["starterForm"] = ""
+    save_settings(settings)
+    state = merge_defaults(raw_state)
+    save_state(state)
+    install_stage(state.get("stage", "baby"), state=state)
+    return load_state(), warning
+
+
+def do_backup_create(args: argparse.Namespace) -> int:
+    target = create_backup(args.output)
+    print(f"Created backup: {target}")
+    return 0
+
+
+def do_backup_list(args: argparse.Namespace) -> int:
+    backups = iter_backups()
+    if args.json:
+        print(json.dumps({"backupsPath": str(backups_dir()), "backups": backups}, indent=2, sort_keys=True))
+        return 0
+    print(f"Backups path: {backups_dir()}")
+    if not backups:
+        print("No backups yet.")
+        return 0
+    for backup in backups:
+        details = f"{backup['stage']} {backup['formId']}".strip()
+        pack = f" | {backup['activePack']}" if backup.get("activePack") else ""
+        print(f"- {backup['name']} | {backup['createdAt']} | {details}{pack}")
+    return 0
+
+
+def do_backup_restore(args: argparse.Namespace) -> int:
+    if not args.confirm:
+        raise SystemExit("Refusing to restore without --confirm.")
+    state, warning = restore_backup(Path(args.source))
+    print(f"Restored backup: {args.source}")
+    if warning:
+        print(f"Warning: {warning}")
+    print(f"Codex Tomogatchi: {state['stage']} | {state['evolution']['formName']} | {state['xp']} XP")
+    return 0
+
+
+def doctor_check(name: str, status: str, detail: str, checks: list[dict[str, str]]) -> None:
+    checks.append({"name": name, "status": status, "detail": detail})
+
+
+def collect_doctor_checks() -> list[dict[str, str]]:
+    checks: list[dict[str, str]] = []
+    doctor_check("CODEX_HOME", "ok", str(codex_home()), checks)
+
+    try:
+        settings = load_settings()
+        doctor_check("settings", "ok", str(settings_path()), checks)
+    except SystemExit as exc:
+        settings = deepcopy(DEFAULT_SETTINGS)
+        doctor_check("settings", "error", str(exc), checks)
+
+    try:
+        state = load_state()
+        doctor_check("state", "ok" if state_path().exists() else "warn", str(state_path()), checks)
+    except SystemExit as exc:
+        state = default_state()
+        doctor_check("state", "error", str(exc), checks)
+
+    try:
+        pack_id = settings.get("pets", {}).get("activePack", BUILTIN_PACK_ID)
+        _pack_root, manifest = load_installed_pet_pack(pack_id)
+        doctor_check("active pet pack", "ok", f"{pack_id} | {manifest.get('name', pack_id)}", checks)
+    except SystemExit as exc:
+        doctor_check("active pet pack", "error", str(exc), checks)
+
+    root = sessions_dir()
+    if root.exists():
+        count = sum(1 for _path in root.rglob("*.jsonl"))
+        detail = f"{root} ({count} session log files)"
+        doctor_check("session logs", "ok" if count else "warn", detail, checks)
+    else:
+        doctor_check("session logs", "warn", f"{root} does not exist yet", checks)
+
+    for stage in STAGES:
+        pet_dir = active_pet_dir(stage)
+        manifest_path = pet_dir / "pet.json"
+        sprite_path = pet_dir / f"spritesheet-{stage}.webp"
+        ok = manifest_path.exists() and sprite_path.exists()
+        doctor_check(f"installed {stage} pet", "ok" if ok else "warn", str(pet_dir), checks)
+
+    config_path = codex_config_path()
+    selected_avatar = state.get("assets", {}).get("selectedAvatarId", selected_avatar_id(state.get("stage", "baby")))
+    if config_path.exists():
+        config_text = config_path.read_text(encoding="utf-8", errors="ignore")
+        status = "ok" if selected_avatar in config_text else "warn"
+        doctor_check("Codex avatar config", status, str(config_path), checks)
+    else:
+        doctor_check("Codex avatar config", "warn", f"{config_path} does not exist yet", checks)
+
+    electron_cmd = PLUGIN_ROOT.parents[1] / "node_modules" / ".bin" / ("electron.cmd" if os.name == "nt" else "electron")
+    doctor_check("Electron dependency", "ok" if electron_cmd.exists() else "warn", str(electron_cmd), checks)
+
+    log_path = overlay_log_path()
+    doctor_check("overlay log", "ok" if log_path.exists() else "warn", str(log_path), checks)
+    doctor_check("backups folder", "ok" if backups_dir().exists() else "warn", str(backups_dir()), checks)
+    return checks
+
+
+def do_doctor(args: argparse.Namespace) -> int:
+    checks = collect_doctor_checks()
+    errors = [check for check in checks if check["status"] == "error"]
+    if args.json:
+        print(json.dumps({"ok": not errors, "checks": checks}, indent=2, sort_keys=True))
+    else:
+        print("Codex Tomogatchi doctor")
+        for check in checks:
+            print(f"[{check['status']}] {check['name']}: {check['detail']}")
+    return 1 if errors else 0
+
+
 def do_settings(args: argparse.Namespace) -> int:
     settings = load_settings()
     changed = False
@@ -3103,6 +3422,26 @@ def build_parser() -> argparse.ArgumentParser:
     care_call.add_argument("--json", action="store_true", help="Print raw care-call JSON")
     care_call.set_defaults(func=do_care_call)
 
+    doctor = sub.add_parser("doctor", help="Check local setup health and common missing pieces")
+    doctor.add_argument("--json", action="store_true", help="Print raw doctor checks")
+    doctor.set_defaults(func=do_doctor)
+
+    backup = sub.add_parser("backup", help="Create, list, and restore local state/settings backups")
+    backup_sub = backup.add_subparsers(dest="backup_command", required=True)
+
+    backup_create = backup_sub.add_parser("create", help="Create a privacy-safe state/settings backup")
+    backup_create.add_argument("--output", help="Output zip path or directory")
+    backup_create.set_defaults(func=do_backup_create)
+
+    backup_list = backup_sub.add_parser("list", help="List local Tomogatchi backups")
+    backup_list.add_argument("--json", action="store_true", help="Print raw backup list")
+    backup_list.set_defaults(func=do_backup_list)
+
+    backup_restore = backup_sub.add_parser("restore", help="Restore a backup zip")
+    backup_restore.add_argument("source", help="Backup zip to restore")
+    backup_restore.add_argument("--confirm", action="store_true", help="Confirm replacing current state/settings")
+    backup_restore.set_defaults(func=do_backup_restore)
+
     settings = sub.add_parser("settings", help="Show or update Tomogatchi settings")
     settings.add_argument("--json", action="store_true", help="Print raw settings JSON")
     settings.add_argument("--init", action="store_true", help="Write default settings if missing")
@@ -3127,6 +3466,16 @@ def build_parser() -> argparse.ArgumentParser:
     pets_import.add_argument("--replace", action="store_true", help="Replace an installed pack with the same id")
     pets_import.add_argument("--select", action="store_true", help="Select the pack after importing it")
     pets_import.set_defaults(func=do_pets_import)
+
+    pets_validate = pets_sub.add_parser("validate", help="Validate a pet-pack folder or zip before importing")
+    pets_validate.add_argument("source", help="Path to a pet-pack folder or .zip archive")
+    pets_validate.add_argument("--json", action="store_true", help="Print raw validation summary")
+    pets_validate.set_defaults(func=do_pets_validate)
+
+    pets_export = pets_sub.add_parser("export", help="Export an installed custom pet pack to a zip")
+    pets_export.add_argument("pack_id", help="Installed custom pet pack id")
+    pets_export.add_argument("--output", help="Output zip path or directory")
+    pets_export.set_defaults(func=do_pets_export)
 
     pets_select = pets_sub.add_parser("select", help="Select an installed pet pack")
     pets_select.add_argument("pack_id", help="Installed pack id, or 'default' for bundled pets")

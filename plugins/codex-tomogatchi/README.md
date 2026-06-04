@@ -35,6 +35,7 @@ Use `python3` instead of `py -3` on macOS/Linux.
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status --json
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care feed
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care rest
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care play
@@ -50,6 +51,7 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py reset --confirm --from-now
 ```
@@ -145,6 +147,8 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets validate C:\path\my-pet-line.zip
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets export my-pet-line --output C:\path\my-pet-line.zip
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select my-pet-line
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
@@ -166,6 +170,17 @@ That pack starts at Agumon, branches to Greymon, Meramon, Birdramon, Centarumon,
 `pets hatch <baby-form-id>` resets to baby and checkpoints existing Codex session logs by default. That keeps old local history from instantly evolving a newly chosen starter. Add `--include-history` only when replaying older logs is intentional.
 
 Packs cannot run scripts. Each stage must include `pet.json` and `spritesheet.webp`; for Codex custom pet sync, use the Codex atlas shape: `1536x1872`, 8 columns, 9 rows, transparent background.
+
+## Diagnostics And Backups
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup list
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup restore C:\path\backup.zip --confirm
+```
+
+`doctor` checks common local setup issues. Backups store Tomogatchi state and settings only; they do not include raw Codex session logs.
 
 ## Privacy
 

@@ -16,6 +16,7 @@ const OVERLAY_STATE_PATH = path.join(CODEX_HOME, "codex-tomogatchi", "overlay-st
 const OVERLAY_LOG_PATH = path.join(CODEX_HOME, "codex-tomogatchi", "overlay.log");
 const PET_ROOT = path.join(CODEX_HOME, "pets");
 const STAGES = ["baby", "teen", "adult"];
+const PACK_ID_PATTERN = /^[a-z0-9][a-z0-9._-]{0,63}$/;
 const THRESHOLDS = { baby: 0, teen: 90, adult: 260 };
 const COMPACT_SIZE = { width: 340, height: 330 };
 const FULL_SIZE = { width: 560, height: 680 };
@@ -33,6 +34,7 @@ const DEFAULT_SETTINGS = {
   lifecycle: { deathEnabled: true },
   care: { callStrictness: "normal" },
   overlay: { alwaysOnTop: true, startMode: "compact", startMinimized: false },
+  pets: { activePack: "default", starterForm: "" },
 };
 
 let mainWindow = null;
@@ -80,7 +82,7 @@ function runTomogatchi(args, label, timeout = 30000) {
   return publishSnapshot(true);
 }
 
-function ensurePetAssets() {
+function copyBundledPetAssets() {
   for (const stage of STAGES) {
     const sourceDir = pluginAssetDir(stage);
     const targetDir = stageDir(stage);
@@ -104,6 +106,17 @@ function ensurePetAssets() {
     };
     fs.writeFileSync(path.join(targetDir, "pet.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
   }
+}
+
+function ensurePetAssets() {
+  const result = runPython(["install"], { timeout: 30000 });
+  if (!result.error && result.status === 0) {
+    logOverlay("assets", { action: "install-active-pack" });
+    return;
+  }
+  const message = result.stderr || result.error?.message || "install failed";
+  logOverlay("assets", { action: "fallback-bundled", message: String(message).slice(0, 240) });
+  copyBundledPetAssets();
 }
 
 function isExternalWatcherRunning() {
@@ -178,6 +191,12 @@ function mergeSettings(rawSettings) {
   settings.overlay.alwaysOnTop = Boolean(settings.overlay.alwaysOnTop);
   settings.overlay.startMode = settings.overlay.startMode === "full" ? "full" : "compact";
   settings.overlay.startMinimized = Boolean(settings.overlay.startMinimized);
+  if (typeof settings.pets.activePack !== "string" || !PACK_ID_PATTERN.test(settings.pets.activePack)) {
+    settings.pets.activePack = "default";
+  }
+  if (typeof settings.pets.starterForm !== "string" || (settings.pets.starterForm && !PACK_ID_PATTERN.test(settings.pets.starterForm))) {
+    settings.pets.starterForm = "";
+  }
   return settings;
 }
 
@@ -291,6 +310,7 @@ function readSnapshot() {
   const lifecycle = raw.lifecycle && typeof raw.lifecycle === "object" ? raw.lifecycle : defaultState().lifecycle;
   const lifecycleStatus = lifecycle.status === "dead" ? "dead" : "alive";
   const evolution = raw.evolution && typeof raw.evolution === "object" ? raw.evolution : defaultState().evolution;
+  const assets = raw.assets && typeof raw.assets === "object" ? raw.assets : {};
   const careCall = raw.careCall && typeof raw.careCall === "object" ? raw.careCall : defaultState().careCall;
   const progress = next == null ? 1 : Math.max(0, Math.min(1, (xp - base) / Math.max(1, next - base)));
   return {
@@ -301,6 +321,10 @@ function readSnapshot() {
       bounds: mainWindow && !mainWindow.isDestroyed() ? mainWindow.getBounds() : readOverlayState().bounds || null,
     },
     stage,
+    petPack: {
+      id: typeof assets.activePetPack === "string" ? assets.activePetPack : readSettings().pets.activePack,
+      name: typeof assets.activePetPackName === "string" ? assets.activePetPackName : "",
+    },
     displayName: evolution.formName || pet.manifest.displayName || stage,
     description: pet.manifest.description || "",
     spriteUrl: fs.existsSync(pet.spritePath) ? pathToFileURL(pet.spritePath).toString() : null,

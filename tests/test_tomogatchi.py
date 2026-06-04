@@ -5,6 +5,7 @@ import json
 import os
 import tempfile
 import unittest
+import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -12,6 +13,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "plugins" / "codex-tomogatchi" / "scripts" / "tomogatchi.py"
+DW1_PACK = ROOT / "examples" / "pet-packs" / "digimon-world-1-agumon"
 spec = importlib.util.spec_from_file_location("tomogatchi", SCRIPT)
 tomogatchi = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
@@ -55,6 +57,93 @@ class TomogatchiTest(unittest.TestCase):
             for record in records:
                 handle.write(json.dumps(record) + "\n")
         return path
+
+    def make_pet_pack(self, pack_id: str = "test-pack", name: str = "Test Pack") -> Path:
+        root = self.root / "pack-src"
+        root.mkdir()
+        (root / "pack.json").write_text(
+            json.dumps(
+                {
+                    "schemaVersion": 1,
+                    "id": pack_id,
+                    "name": name,
+                    "author": "Test Author",
+                    "description": "A test custom evolution line.",
+                    "stages": {
+                        "baby": "stages/baby",
+                        "teen": "stages/teen",
+                        "adult": "stages/adult",
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+        for stage in tomogatchi.STAGES:
+            stage_dir = root / "stages" / stage
+            stage_dir.mkdir(parents=True)
+            (stage_dir / "pet.json").write_text(
+                json.dumps(
+                    {
+                        "id": f"{pack_id}-{stage}",
+                        "displayName": f"{name} {stage.title()}",
+                        "description": f"{name} {stage} form.",
+                        "spritesheetPath": "spritesheet.webp",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (stage_dir / "spritesheet.webp").write_text(f"{pack_id} {stage} sprite", encoding="utf-8")
+        return root
+
+    def make_branching_pet_pack(self, pack_id: str = "branch-line", name: str = "Branch Line") -> Path:
+        root = self.root / "branch-pack-src"
+        root.mkdir()
+        forms = {
+            "baby": [
+                {"id": "alpha", "name": "Alpha", "assetPath": "forms/baby/alpha", "default": True},
+                {"id": "beta", "name": "Beta", "assetPath": "forms/baby/beta"},
+            ],
+            "teen": [
+                {"id": "alpha-teen", "name": "Alpha Teen", "assetPath": "forms/teen/alpha-teen", "default": True},
+            ],
+            "adult": [
+                {"id": "alpha-adult", "name": "Alpha Adult", "assetPath": "forms/adult/alpha-adult", "default": True},
+            ],
+        }
+        (root / "pack.json").write_text(
+            json.dumps(
+                {
+                    "schemaVersion": 1,
+                    "id": pack_id,
+                    "name": name,
+                    "author": "Test Author",
+                    "description": "A test branching pack.",
+                    "forms": forms,
+                }
+            ),
+            encoding="utf-8",
+        )
+        for stage, stage_forms in forms.items():
+            for form in stage_forms:
+                form_dir = root / form["assetPath"]
+                form_dir.mkdir(parents=True)
+                (form_dir / "pet.json").write_text(
+                    json.dumps(
+                        {
+                            "id": f"{pack_id}-{form['id']}",
+                            "displayName": form["name"],
+                            "description": f"{form['name']} form.",
+                            "spritesheetPath": "spritesheet.webp",
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                (form_dir / "spritesheet.webp").write_text(f"{pack_id} {form['id']} sprite", encoding="utf-8")
+        return root
+
+    def select_dw1_pack(self) -> dict:
+        tomogatchi.main(["pets", "import", str(DW1_PACK), "--replace", "--select"])
+        return self.load_json()
 
     def test_default_state_shape(self) -> None:
         state = tomogatchi.load_state()
@@ -433,6 +522,216 @@ class TomogatchiTest(unittest.TestCase):
         config_text = self.config.read_text(encoding="utf-8")
         self.assertIn('conversationDetailMode = "STEPS_COMMANDS"', config_text)
         self.assertIn('selected-avatar-id = "custom:codex-tomogatchi-teen"', config_text)
+
+    def test_pet_pack_import_and_select_installs_custom_stage(self) -> None:
+        source = self.make_pet_pack("bright-line", "Bright Line")
+
+        tomogatchi.main(["pets", "import", str(source), "--select"])
+
+        settings = json.loads(self.settings.read_text(encoding="utf-8"))
+        self.assertEqual(settings["pets"]["activePack"], "bright-line")
+        state = self.load_json()
+        self.assertEqual(state["assets"]["activePetPack"], "bright-line")
+        self.assertEqual(state["assets"]["activePetPackName"], "Bright Line")
+
+        manifest = json.loads((self.baby_pet_dir / "pet.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["displayName"], "Bright Line Baby")
+        self.assertEqual((self.baby_pet_dir / "spritesheet-baby.webp").read_text(encoding="utf-8"), "bright-line baby sprite")
+
+        state["stage"] = "teen"
+        tomogatchi.save_state(state)
+        tomogatchi.install_stage("teen")
+        teen_manifest = json.loads((self.teen_pet_dir / "pet.json").read_text(encoding="utf-8"))
+        self.assertEqual(teen_manifest["displayName"], "Bright Line Teen")
+        self.assertEqual((self.teen_pet_dir / "spritesheet-teen.webp").read_text(encoding="utf-8"), "bright-line teen sprite")
+
+    def test_pet_pack_select_default_restores_bundled_stage(self) -> None:
+        source = self.make_pet_pack("bright-line", "Bright Line")
+        tomogatchi.main(["pets", "import", str(source), "--select"])
+
+        tomogatchi.main(["pets", "select", "default"])
+
+        settings = json.loads(self.settings.read_text(encoding="utf-8"))
+        self.assertEqual(settings["pets"]["activePack"], "default")
+        state = self.load_json()
+        self.assertEqual(state["assets"]["activePetPack"], "default")
+        manifest = json.loads((self.baby_pet_dir / "pet.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["displayName"], "Sparkbit")
+
+    def test_pet_pack_zip_import_can_select_pack(self) -> None:
+        source = self.make_pet_pack("zip-line", "Zip Line")
+        archive = self.root / "zip-line.zip"
+        with zipfile.ZipFile(archive, "w") as handle:
+            for path in source.rglob("*"):
+                if path.is_file():
+                    handle.write(path, str(Path("zip-line") / path.relative_to(source)))
+
+        tomogatchi.main(["pets", "import", str(archive), "--select"])
+
+        settings = json.loads(self.settings.read_text(encoding="utf-8"))
+        self.assertEqual(settings["pets"]["activePack"], "zip-line")
+        manifest = json.loads((self.baby_pet_dir / "pet.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["displayName"], "Zip Line Baby")
+
+    def test_pet_pack_zip_rejects_path_traversal(self) -> None:
+        archive = self.root / "bad-pack.zip"
+        with zipfile.ZipFile(archive, "w") as handle:
+            handle.writestr("../bad.txt", "nope")
+
+        with self.assertRaises(SystemExit):
+            tomogatchi.main(["pets", "import", str(archive)])
+
+    def test_branching_pet_pack_can_hatch_selected_starter_from_now(self) -> None:
+        source = self.make_branching_pet_pack()
+        self.write_session_log({"type": "user_message", "message": {"content": "do not replay"}})
+        tomogatchi.main(["pets", "import", str(source), "--select"])
+
+        tomogatchi.main(["pets", "hatch", "beta"])
+
+        settings = json.loads(self.settings.read_text(encoding="utf-8"))
+        self.assertEqual(settings["pets"]["activePack"], "branch-line")
+        self.assertEqual(settings["pets"]["starterForm"], "beta")
+        state = self.load_json()
+        self.assertEqual(state["stage"], "baby")
+        self.assertEqual(state["evolution"]["formId"], "beta")
+        self.assertEqual(state["evolution"]["formName"], "Beta")
+        self.assertTrue(state["ingest"]["sessionLogs"])
+        manifest = json.loads((self.baby_pet_dir / "pet.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["displayName"], "Beta")
+        self.assertEqual((self.baby_pet_dir / "spritesheet-baby.webp").read_text(encoding="utf-8"), "branch-line beta sprite")
+
+    def test_pet_pack_select_clears_unavailable_starter(self) -> None:
+        source = self.make_branching_pet_pack()
+        tomogatchi.main(["pets", "import", str(source), "--select"])
+        tomogatchi.main(["pets", "hatch", "beta"])
+
+        tomogatchi.main(["pets", "select", "default"])
+
+        settings = json.loads(self.settings.read_text(encoding="utf-8"))
+        self.assertEqual(settings["pets"]["activePack"], "default")
+        self.assertEqual(settings["pets"]["starterForm"], "")
+        state = self.load_json()
+        self.assertEqual(state["evolution"]["formId"], "sparkbit")
+
+    def test_dw1_pack_starts_as_agumon(self) -> None:
+        state = self.select_dw1_pack()
+
+        self.assertEqual(state["assets"]["activePetPack"], "digimon-world-1-agumon")
+        self.assertEqual(state["evolution"]["formId"], "agumon")
+        manifest = json.loads((self.baby_pet_dir / "pet.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["displayName"], "Agumon")
+
+    def test_dw1_pack_lists_branching_forms(self) -> None:
+        self.select_dw1_pack()
+
+        tomogatchi.main(["pets", "forms"])
+
+        state = self.load_json()
+        self.assertEqual(state["assets"]["activePetPack"], "digimon-world-1-agumon")
+        self.assertEqual(state["evolution"]["formId"], "agumon")
+
+    def test_dw1_pack_can_branch_agumon_to_greymon(self) -> None:
+        state = self.select_dw1_pack()
+        state["xp"] = tomogatchi.THRESHOLDS["teen"]
+        state["evolution"]["careMistakes"] = 0
+        state["evolution"]["dw1Stats"] = {
+            "hp": 2000,
+            "mp": 1500,
+            "offense": 100,
+            "defense": 100,
+            "speed": 100,
+            "brains": 100,
+            "weight": 30,
+            "discipline": 90,
+            "techniques": 35,
+        }
+
+        self.assertTrue(tomogatchi.maybe_evolve(state))
+
+        self.assertEqual(state["stage"], "teen")
+        self.assertEqual(state["evolution"]["formId"], "greymon")
+
+    def test_dw1_pack_can_branch_agumon_to_meramon(self) -> None:
+        state = self.select_dw1_pack()
+        state["xp"] = tomogatchi.THRESHOLDS["teen"]
+        state["evolution"]["careMistakes"] = 5
+        state["evolution"]["dw1Stats"] = {
+            "hp": 1000,
+            "mp": 1500,
+            "offense": 100,
+            "defense": 150,
+            "speed": 150,
+            "brains": 150,
+            "weight": 20,
+            "battles": 10,
+            "techniques": 28,
+        }
+
+        self.assertTrue(tomogatchi.maybe_evolve(state))
+
+        self.assertEqual(state["stage"], "teen")
+        self.assertEqual(state["evolution"]["formId"], "meramon")
+
+    def test_dw1_pack_can_branch_greymon_to_metalgreymon(self) -> None:
+        state = self.select_dw1_pack()
+        state["stage"] = "teen"
+        state["xp"] = tomogatchi.THRESHOLDS["adult"]
+        state["evolution"].update(
+            {
+                "formId": "greymon",
+                "formName": "Greymon",
+                "path": "dw1-greymon",
+                "assetStage": "teen",
+                "careMistakes": 0,
+                "dw1Stats": {
+                    "hp": 4000,
+                    "mp": 3000,
+                    "offense": 500,
+                    "defense": 500,
+                    "speed": 300,
+                    "brains": 300,
+                    "weight": 65,
+                    "discipline": 95,
+                    "battles": 30,
+                    "techniques": 30,
+                },
+            }
+        )
+
+        self.assertTrue(tomogatchi.maybe_evolve(state))
+
+        self.assertEqual(state["stage"], "adult")
+        self.assertEqual(state["evolution"]["formId"], "metalgreymon")
+
+    def test_dw1_pack_can_branch_greymon_to_skullgreymon(self) -> None:
+        state = self.select_dw1_pack()
+        state["stage"] = "teen"
+        state["xp"] = tomogatchi.THRESHOLDS["adult"]
+        state["evolution"].update(
+            {
+                "formId": "greymon",
+                "formName": "Greymon",
+                "path": "dw1-greymon",
+                "assetStage": "teen",
+                "careMistakes": 10,
+                "dw1Stats": {
+                    "hp": 4000,
+                    "mp": 6000,
+                    "offense": 400,
+                    "defense": 400,
+                    "speed": 200,
+                    "brains": 500,
+                    "weight": 30,
+                    "battles": 40,
+                    "techniques": 45,
+                },
+            }
+        )
+
+        self.assertTrue(tomogatchi.maybe_evolve(state))
+
+        self.assertEqual(state["stage"], "adult")
+        self.assertEqual(state["evolution"]["formId"], "skullgreymon")
 
     def test_session_log_sync_updates_counters_once_and_keeps_privacy(self) -> None:
         self.write_session_log(

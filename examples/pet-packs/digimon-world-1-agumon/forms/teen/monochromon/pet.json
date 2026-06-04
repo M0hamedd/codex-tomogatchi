@@ -1,0 +1,6 @@
+{
+  "description": "Digimon World 1 counterpart form for the Agumon example pack.",
+  "displayName": "Monochromon",
+  "id": "monochromon",
+  "spritesheetPath": "spritesheet.webp"
+}

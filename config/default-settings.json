@@ -10,6 +10,10 @@
     "startMinimized": false,
     "startMode": "compact"
   },
+  "pets": {
+    "activePack": "default",
+    "starterForm": ""
+  },
   "xp": {
     "pace": "normal"
   }

@@ -46,6 +46,11 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py evolve --check
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py profile
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care-call
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py reset --confirm --from-now
 ```
 
@@ -88,7 +93,80 @@ Supported settings:
 - `overlay.alwaysOnTop`: `true` or `false`
 - `overlay.startMode`: `compact` or `full`
 - `overlay.startMinimized`: `true` or `false`
+- `pets.activePack`: `default` or an installed custom pet pack id
+- `pets.starterForm`: empty for the pack default, or a baby form id from `pets forms`
+
+## Custom Pet Packs
+
+Custom pet packs are asset-only folders or zip files. They are imported into:
+
+```text
+${CODEX_HOME:-~/.codex}/codex-tomogatchi/pet-packs/<pack-id>/
+```
+
+Pack layout:
+
+```text
+my-pet-line.zip
+  pack.json
+  stages/
+    baby/
+      pet.json
+      spritesheet.webp
+    teen/
+      pet.json
+      spritesheet.webp
+    adult/
+      pet.json
+      spritesheet.webp
+```
+
+`pack.json`:
+
+```json
+{
+  "schemaVersion": 1,
+  "id": "my-pet-line",
+  "name": "My Pet Line",
+  "author": "Someone",
+  "description": "A custom three-stage evolution line.",
+  "stages": {
+    "baby": "stages/baby",
+    "teen": "stages/teen",
+    "adult": "stages/adult"
+  }
+}
+```
+
+Commands:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select my-pet-line
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
+```
+
+Branching packs can use `forms` instead of `stages`. Each form has an `assetPath`, optional `evolvesFrom`, and `requirements`. The requirement evaluator supports Digimon World 1-style `dw1` groups: stats, care mistakes, weight, and bonus. DW1-style forms require 3 of the 4 groups by default.
+
+The repo includes an example pack:
+
+```powershell
+py -3 scripts/generate_dw1_agumon_pack.py
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\digimon-world-1-agumon --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
+```
+
+That pack starts at Agumon, branches to Greymon, Meramon, Birdramon, Centarumon, Monochromon, Tyrannomon, or Numemon, then branches to matching DW1 ultimate counterparts. The requirement data is source-backed; the local sprites are concept atlases, not ripped game assets.
+
+`pets hatch <baby-form-id>` resets to baby and checkpoints existing Codex session logs by default. That keeps old local history from instantly evolving a newly chosen starter. Add `--include-history` only when replaying older logs is intentional.
+
+Packs cannot run scripts. Each stage must include `pet.json` and `spritesheet.webp`; for Codex custom pet sync, use the Codex atlas shape: `1536x1872`, 8 columns, 9 rows, transparent background.
 
 ## Privacy
 
-The tracker stores aggregate counters, lifecycle timestamps, evolution profile metadata, settings, and reaction metadata only. It must not store prompt text, command text, tool output, screenshots, raw hook payloads, or raw session-log records.
+The tracker stores aggregate counters, lifecycle timestamps, evolution profile metadata, DW1-style derived raising stats, settings, and reaction metadata only. It must not store prompt text, command text, tool output, screenshots, raw hook payloads, or raw session-log records.

@@ -16,6 +16,7 @@ import shutil
 import sys
 import tempfile
 import time
+import zipfile
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -27,6 +28,8 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[1]
 ASSET_ROOT = PLUGIN_ROOT / "assets" / "stages"
 PET_ID = "codex-tomogatchi"
 STAGES = ("baby", "teen", "adult")
+BUILTIN_PACK_ID = "default"
+PET_PACK_ID_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 THRESHOLDS = {"baby": 0, "teen": 90, "adult": 260}
 DAILY_XP_CAP = 90
 TURN_XP = 7
@@ -44,6 +47,8 @@ FOCUS_KEYS = ("builder", "explorer", "debugger", "reviewer")
 CARE_KINDS = ("feed", "rest", "play", "comfort")
 MISTAKE_KINDS = ("neglect", "overwork", "stress", "death")
 TRAINING_KEYS = ("focus", "testing", "care", "recovery")
+DW1_STAT_KEYS = ("hp", "mp", "offense", "defense", "speed", "brains")
+DW1_METRIC_KEYS = DW1_STAT_KEYS + ("weight", "happiness", "discipline", "battles", "techniques")
 
 DEFAULT_STATS = {
     "fullness": 72,
@@ -112,6 +117,10 @@ DEFAULT_SETTINGS = {
         "alwaysOnTop": True,
         "startMode": "compact",
         "startMinimized": False,
+    },
+    "pets": {
+        "activePack": BUILTIN_PACK_ID,
+        "starterForm": "",
     },
 }
 
@@ -261,6 +270,7 @@ DEFAULT_EVOLUTION = {
     },
     "focusPoints": {key: 0 for key in FOCUS_KEYS},
     "trainingPoints": {key: 0 for key in TRAINING_KEYS},
+    "dw1Stats": {},
     "lineage": [
         {
             "stage": "baby",
@@ -460,11 +470,13 @@ def form_for_stage_path(stage: str, path_name: str) -> dict[str, Any]:
 
 
 def known_form_ids() -> set[str]:
-    return {
+    ids = {
         str(form["formId"])
         for stage_forms in FORM_CATALOG.values()
         for form in stage_forms.values()
     }
+    ids.update(pet_pack_form_ids(active_pet_pack_id()))
+    return {form_id for form_id in ids if form_id}
 
 
 def dominant_key(points: dict[str, Any], keys: tuple[str, ...]) -> tuple[str, int]:
@@ -475,6 +487,65 @@ def dominant_key(points: dict[str, Any], keys: tuple[str, ...]) -> tuple[str, in
 
 def evolution_profile(state: dict[str, Any]) -> dict[str, Any]:
     return state.setdefault("evolution", deepcopy(DEFAULT_EVOLUTION))
+
+
+def derived_dw1_metrics(state: dict[str, Any]) -> dict[str, int]:
+    """Project Codex Tomogatchi activity into DW1-like raising stats.
+
+    Pet packs keep the original DW1 requirements in their own units. This
+    projection gives the local Codex game a way to satisfy those units without
+    pretending Codex has the exact PS1 stat system.
+    """
+
+    evolution = evolution_profile(state)
+    counters = state.get("counters", {})
+    stats = state.get("stats", {})
+    focus = evolution.get("focusPoints", {})
+    training = evolution.get("trainingPoints", {})
+    care = evolution.get("carePoints", {})
+    care_calls = evolution.get("careCalls", {})
+    care_total = sum(safe_int(value) for value in care.values())
+    turns = safe_int(counters.get("turns"))
+    successful_tools = safe_int(counters.get("successfulTools"))
+    xp = safe_int(state.get("xp"))
+    builder = safe_int(focus.get("builder"))
+    explorer = safe_int(focus.get("explorer"))
+    debugger = safe_int(focus.get("debugger"))
+    reviewer = safe_int(focus.get("reviewer"))
+    feed = safe_int(care.get("feed"))
+    rest = safe_int(care.get("rest"))
+    play = safe_int(care.get("play"))
+    comfort = safe_int(care.get("comfort"))
+    mistakes = safe_int(evolution.get("careMistakes"))
+    missed_calls = safe_int(care_calls.get("missed"))
+
+    projected = {
+        "hp": 500 + xp * 12 + turns * 120 + rest * 180 + feed * 80,
+        "mp": 500 + xp * 10 + explorer * 260 + comfort * 160 + play * 60,
+        "offense": 50 + builder * 28 + successful_tools * 3 + safe_int(training.get("focus")) * 10,
+        "defense": 50 + reviewer * 24 + rest * 20 + safe_int(training.get("testing")) * 15,
+        "speed": 50 + explorer * 22 + successful_tools * 2 + play * 12,
+        "brains": 50 + debugger * 24 + reviewer * 14 + turns * 4 + safe_int(training.get("testing")) * 20,
+        "weight": clamp(10 + feed * 6 + safe_int(stats.get("fullness")) // 8 - play * 2 - safe_int(stats.get("stress")) // 15, 0, 99),
+        "happiness": clamp(safe_int(stats.get("mood")) + play * 4 + comfort * 3 - mistakes * 4, -100, 100),
+        "discipline": clamp(40 + turns * 4 + reviewer * 4 + debugger * 2 - missed_calls * 8, 0, 100),
+        "battles": turns + successful_tools // 3,
+        "techniques": clamp(
+            safe_int(training.get("focus"))
+            + safe_int(training.get("testing"))
+            + care_total
+            + (builder + explorer + debugger + reviewer) // 2,
+            0,
+            99,
+        ),
+    }
+
+    overrides = evolution.get("dw1Stats")
+    if isinstance(overrides, dict):
+        for key, value in overrides.items():
+            if key in DW1_METRIC_KEYS:
+                projected[key] = safe_int(value)
+    return projected
 
 
 def evolution_metrics(state: dict[str, Any]) -> dict[str, Any]:
@@ -500,10 +571,76 @@ def evolution_metrics(state: dict[str, Any]) -> dict[str, Any]:
             key: safe_int(evolution.get("trainingPoints", {}).get(key))
             for key in TRAINING_KEYS
         },
+        "dw1": derived_dw1_metrics(state),
     }
 
 
+def dw1_bonus_matches(bonus: dict[str, Any], metrics: dict[str, Any]) -> bool:
+    dw1 = metrics["dw1"]
+    if "happinessMin" in bonus and dw1["happiness"] < safe_int(bonus["happinessMin"]):
+        return False
+    if "disciplineMin" in bonus and dw1["discipline"] < safe_int(bonus["disciplineMin"]):
+        return False
+    if "battlesMin" in bonus and dw1["battles"] < safe_int(bonus["battlesMin"]):
+        return False
+    if "battlesMax" in bonus and dw1["battles"] > safe_int(bonus["battlesMax"]):
+        return False
+    if "techniquesMin" in bonus and dw1["techniques"] < safe_int(bonus["techniquesMin"]):
+        return False
+    return True
+
+
+def dw1_requirement_results(requirement: dict[str, Any], metrics: dict[str, Any]) -> dict[str, bool]:
+    dw1 = metrics["dw1"]
+    stat_requirements = requirement.get("stats", {})
+    stats_match = isinstance(stat_requirements, dict) and bool(stat_requirements)
+    if stats_match:
+        for key, value in stat_requirements.items():
+            normalized_key = str(key).lower()
+            if normalized_key in DW1_STAT_KEYS and dw1[normalized_key] < safe_int(value):
+                stats_match = False
+                break
+
+    weight = requirement.get("weight")
+    weight_match = False
+    if isinstance(weight, dict):
+        minimum = safe_int(weight.get("min"), -10**9)
+        maximum = safe_int(weight.get("max"), 10**9)
+        weight_match = minimum <= dw1["weight"] <= maximum
+
+    care = requirement.get("careMistakes")
+    care_match = False
+    if isinstance(care, dict):
+        care_match = True
+        if "min" in care and metrics["careMistakes"] < safe_int(care["min"]):
+            care_match = False
+        if "max" in care and metrics["careMistakes"] > safe_int(care["max"]):
+            care_match = False
+
+    bonus = requirement.get("bonus")
+    bonus_match = False
+    if isinstance(bonus, list):
+        bonus_match = any(dw1_bonus_matches(item, metrics) for item in bonus if isinstance(item, dict))
+
+    return {
+        "stats": stats_match,
+        "weight": weight_match,
+        "careMistakes": care_match,
+        "bonus": bonus_match,
+    }
+
+
+def dw1_requirement_matches(requirement: dict[str, Any], metrics: dict[str, Any]) -> bool:
+    groups_required = max(1, safe_int(requirement.get("groupsRequired"), 3))
+    results = dw1_requirement_results(requirement, metrics)
+    return sum(1 for matched in results.values() if matched) >= groups_required
+
+
 def requirement_matches(requirement: dict[str, Any], metrics: dict[str, Any]) -> bool:
+    dw1_requirement = requirement.get("dw1")
+    if isinstance(dw1_requirement, dict) and not dw1_requirement_matches(dw1_requirement, metrics):
+        return False
+
     any_requirements = requirement.get("any")
     if isinstance(any_requirements, list) and any_requirements:
         if not any(requirement_matches(item, metrics) for item in any_requirements if isinstance(item, dict)):
@@ -578,7 +715,93 @@ def legacy_evolution_path_for_state(state: dict[str, Any]) -> tuple[str, str]:
     return "balanced", "balanced growth"
 
 
+def pack_forms_for_stage(manifest: dict[str, Any], stage: str) -> list[dict[str, Any]]:
+    forms = manifest.get("forms", {})
+    if not isinstance(forms, dict):
+        return []
+    stage_forms = forms.get(stage, [])
+    if not isinstance(stage_forms, list):
+        return []
+    return [form for form in stage_forms if isinstance(form, dict)]
+
+
+def pack_form_by_id(manifest: dict[str, Any], stage: str, form_id: str) -> dict[str, Any] | None:
+    for form in pack_forms_for_stage(manifest, stage):
+        if str(form.get("id")) == form_id:
+            return form
+    return None
+
+
+def selected_pack_baby_form(manifest: dict[str, Any]) -> dict[str, Any] | None:
+    starter_id = active_starter_form_id()
+    if starter_id:
+        starter = pack_form_by_id(manifest, "baby", starter_id)
+        if starter is not None:
+            return starter
+    return pack_default_form(pack_forms_for_stage(manifest, "baby"))
+
+
+def pack_form_to_catalog_form(stage: str, form: dict[str, Any], reason: str | None = None) -> dict[str, Any]:
+    form_id = str(form.get("id") or f"{stage}-form")
+    return {
+        "formId": form_id,
+        "formName": str(form.get("name") or form.get("displayName") or form_id),
+        "path": str(form.get("path") or form_id),
+        "assetStage": stage,
+        "reason": reason or str(form.get("reason") or "pet-pack form"),
+    }
+
+
+def pack_form_matches_from(form: dict[str, Any], previous_form_id: str) -> bool:
+    evolves_from = form.get("evolvesFrom")
+    if not isinstance(evolves_from, list) or not evolves_from:
+        return True
+    return previous_form_id in {str(item) for item in evolves_from}
+
+
+def pack_default_form(forms: list[dict[str, Any]]) -> dict[str, Any] | None:
+    for form in forms:
+        if form.get("default") is True:
+            return form
+    return forms[0] if forms else None
+
+
+def choose_pack_form_for_stage(state: dict[str, Any], stage: str) -> dict[str, Any] | None:
+    try:
+        _root, manifest = load_installed_pet_pack(active_pet_pack_id())
+    except SystemExit:
+        return None
+    forms = pack_forms_for_stage(manifest, stage)
+    if not forms:
+        return None
+    if stage == "baby":
+        default = selected_pack_baby_form(manifest)
+        return pack_form_to_catalog_form(stage, default, "starter form") if default else None
+
+    metrics = evolution_metrics(state)
+    previous_form_id = str(evolution_profile(state).get("formId", ""))
+    fallback = None
+    for form in forms:
+        if not pack_form_matches_from(form, previous_form_id):
+            continue
+        if form.get("default") is True:
+            fallback = form
+        requirement = form.get("requirements")
+        if isinstance(requirement, dict) and requirement_matches(requirement, metrics):
+            reason = str(form.get("reason") or requirement.get("reason") or "pet-pack requirements matched")
+            return pack_form_to_catalog_form(stage, form, reason)
+
+    if fallback is None:
+        fallback = pack_default_form([form for form in forms if pack_form_matches_from(form, previous_form_id)])
+    if fallback is None:
+        fallback = pack_default_form(forms)
+    return pack_form_to_catalog_form(stage, fallback, str(fallback.get("reason") or "pet-pack fallback")) if fallback else None
+
+
 def choose_form_for_stage(state: dict[str, Any], stage: str) -> dict[str, Any]:
+    pack_form = choose_pack_form_for_stage(state, stage)
+    if pack_form is not None:
+        return pack_form
     if stage == "baby":
         return form_for_stage_path("baby", "default")
     path_name, reason = evolution_path_for_state(state, stage)
@@ -587,7 +810,7 @@ def choose_form_for_stage(state: dict[str, Any], stage: str) -> dict[str, Any]:
     return form
 
 
-def apply_form(state: dict[str, Any], stage: str, form: dict[str, Any]) -> None:
+def apply_form(state: dict[str, Any], stage: str, form: dict[str, Any], *, at: str | None = None) -> None:
     evolution = evolution_profile(state)
     evolution.update(
         {
@@ -610,7 +833,7 @@ def apply_form(state: dict[str, Any], stage: str, form: dict[str, Any]) -> None:
         "formName": form["formName"],
         "path": form["path"],
         "reason": form["reason"],
-        "at": now_iso(),
+        "at": at or now_iso(),
     }
     lineage = evolution.setdefault("lineage", [])
     if not lineage or lineage[-1].get("formId") != form["formId"]:
@@ -655,6 +878,55 @@ def legacy_pet_dir() -> Path:
     if override:
         return Path(override).expanduser().resolve()
     return codex_home() / "pets" / PET_ID
+
+
+def pet_packs_dir() -> Path:
+    override = os.environ.get("CODEX_TOMOGATCHI_PET_PACKS_DIR")
+    if override:
+        return Path(override).expanduser().resolve()
+    return codex_home() / "codex-tomogatchi" / "pet-packs"
+
+
+def validate_pet_pack_id(pack_id: Any) -> str:
+    candidate = str(pack_id or "").strip().lower()
+    if not PET_PACK_ID_RE.fullmatch(candidate):
+        raise SystemExit(
+            "Pet pack id must be 1-64 lowercase letters, numbers, dots, underscores, or hyphens, "
+            "and must start with a letter or number."
+        )
+    if candidate in {".", ".."}:
+        raise SystemExit("Pet pack id is reserved.")
+    return candidate
+
+
+def builtin_pack_manifest() -> dict[str, Any]:
+    return {
+        "schemaVersion": 1,
+        "id": BUILTIN_PACK_ID,
+        "name": "Sparkbit Line",
+        "author": "Codex Tomogatchi",
+        "description": "The bundled original Sparkbit, Byteclaw, and Coremaw evolution line.",
+        "stages": {stage: str(ASSET_ROOT / stage) for stage in STAGES},
+    }
+
+
+def active_pet_pack_id() -> str:
+    settings = load_settings()
+    try:
+        return validate_pet_pack_id(settings.get("pets", {}).get("activePack", BUILTIN_PACK_ID))
+    except SystemExit:
+        return BUILTIN_PACK_ID
+
+
+def active_starter_form_id() -> str:
+    settings = load_settings()
+    raw = settings.get("pets", {}).get("starterForm", "")
+    if not raw:
+        return ""
+    try:
+        return validate_pet_pack_id(raw)
+    except SystemExit:
+        return ""
 
 
 def stage_pet_id(stage: str) -> str:
@@ -711,6 +983,8 @@ def default_state() -> dict[str, Any]:
         "branchSignals": deepcopy(DEFAULT_BRANCH_SIGNALS),
         "assets": {
             "currentStage": stage,
+            "activePetPack": BUILTIN_PACK_ID,
+            "activePetPackName": builtin_pack_manifest()["name"],
             "activePetId": stage_pet_id(stage),
             "installedPetPath": str(pet_dir),
             "selectedAvatarId": selected_avatar_id(stage),
@@ -764,6 +1038,18 @@ def merge_settings(raw: Any) -> dict[str, Any]:
     settings["overlay"]["alwaysOnTop"] = bool(settings["overlay"].get("alwaysOnTop", True))
     settings["overlay"]["startMode"] = "full" if settings["overlay"].get("startMode") == "full" else "compact"
     settings["overlay"]["startMinimized"] = bool(settings["overlay"].get("startMinimized", False))
+    try:
+        settings["pets"]["activePack"] = validate_pet_pack_id(settings["pets"].get("activePack", BUILTIN_PACK_ID))
+    except SystemExit:
+        settings["pets"]["activePack"] = BUILTIN_PACK_ID
+    raw_starter = settings["pets"].get("starterForm", "")
+    if raw_starter:
+        try:
+            settings["pets"]["starterForm"] = validate_pet_pack_id(raw_starter)
+        except SystemExit:
+            settings["pets"]["starterForm"] = ""
+    else:
+        settings["pets"]["starterForm"] = ""
     return settings
 
 
@@ -993,6 +1279,13 @@ def merge_defaults(state: dict[str, Any]) -> dict[str, Any]:
         for key, value in evolution.get("trainingPoints", {}).items():
             if key in TRAINING_KEYS:
                 merged["evolution"]["trainingPoints"][key] = max(0, safe_int(value))
+        dw1_stats = evolution.get("dw1Stats")
+        if isinstance(dw1_stats, dict):
+            merged["evolution"]["dw1Stats"] = {
+                key: safe_int(value)
+                for key, value in dw1_stats.items()
+                if key in DW1_METRIC_KEYS
+            }
         lineage = evolution.get("lineage")
         if isinstance(lineage, list):
             merged["evolution"]["lineage"] = [item for item in lineage if isinstance(item, dict)][:20]
@@ -1005,9 +1298,10 @@ def merge_defaults(state: dict[str, Any]) -> dict[str, Any]:
     merged["evolution"]["careMistakes"] = max(0, safe_int(merged["evolution"].get("careMistakes")))
     if str(merged["evolution"].get("assetStage")) not in STAGES:
         merged["evolution"]["assetStage"] = merged.get("stage", "baby")
-    if str(merged["evolution"].get("formId", "")) not in known_form_ids():
-        path_name = str(merged["evolution"].get("path", "balanced"))
-        form = form_for_stage_path(str(merged.get("stage", "baby")), path_name)
+    active_pack_ids = pet_pack_form_ids(active_pet_pack_id())
+    current_form_id = str(merged["evolution"].get("formId", ""))
+    if current_form_id not in known_form_ids() or (active_pack_ids and current_form_id not in active_pack_ids):
+        form = choose_form_for_stage(merged, str(merged.get("stage", "baby")))
         merged["evolution"].update(form)
         merged["evolution"]["lastEvaluation"].update(
             {
@@ -1018,7 +1312,7 @@ def merge_defaults(state: dict[str, Any]) -> dict[str, Any]:
             }
         )
     if not merged["evolution"].get("formId"):
-        form = form_for_stage_path(str(merged.get("stage", "baby")), str(merged["evolution"].get("path", "balanced")))
+        form = choose_form_for_stage(merged, str(merged.get("stage", "baby")))
         merged["evolution"].update(form)
 
     ingest = state.get("ingest", {})
@@ -1047,7 +1341,7 @@ def merge_defaults(state: dict[str, Any]) -> dict[str, Any]:
     merged["schemaVersion"] = SCHEMA_VERSION
     stage = merged["stage"]
     if merged["evolution"].get("assetStage") != stage:
-        form = form_for_stage_path(stage, str(merged["evolution"].get("path", "balanced")))
+        form = choose_form_for_stage(merged, stage)
         merged["evolution"].update(form)
     merged["assets"]["currentFormId"] = merged["evolution"]["formId"]
     merged["assets"]["currentFormName"] = merged["evolution"]["formName"]
@@ -1066,6 +1360,9 @@ def merge_defaults(state: dict[str, Any]) -> dict[str, Any]:
         )
         del lineage[:-20]
     merged["assets"]["currentStage"] = stage
+    pack_id = active_pet_pack_id()
+    merged["assets"]["activePetPack"] = pack_id
+    merged["assets"]["activePetPackName"] = pet_pack_display_name(pack_id)
     merged["assets"]["activePetId"] = stage_pet_id(stage)
     merged["assets"]["installedPetPath"] = str(active_pet_dir(stage))
     merged["assets"]["selectedAvatarId"] = selected_avatar_id(stage)
@@ -1076,7 +1373,7 @@ def merge_defaults(state: dict[str, Any]) -> dict[str, Any]:
 def load_state() -> dict[str, Any]:
     path = state_path()
     if not path.exists():
-        return default_state()
+        return merge_defaults(default_state())
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
@@ -1214,7 +1511,7 @@ def reset_growth_for_rebirth(state: dict[str, Any], at: datetime) -> None:
     previous_generation = safe_int(state.get("evolution", {}).get("generation"), 1)
     evolution = deepcopy(DEFAULT_EVOLUTION)
     evolution["generation"] = previous_generation + 1
-    evolution["lineage"][0]["at"] = stamp
+    evolution["lineage"] = []
     state["stage"] = stage
     state["xp"] = 0
     state["level"] = 1
@@ -1222,13 +1519,11 @@ def reset_growth_for_rebirth(state: dict[str, Any], at: datetime) -> None:
     state["turnState"] = deepcopy(DEFAULT_TURN_STATE)
     state["careCall"] = deepcopy(DEFAULT_CARE_CALL)
     state["evolution"] = evolution
+    apply_form(state, stage, choose_form_for_stage(state, stage), at=stamp)
     state.setdefault("assets", {})["currentStage"] = stage
     state["assets"]["activePetId"] = stage_pet_id(stage)
     state["assets"]["installedPetPath"] = str(active_pet_dir(stage))
     state["assets"]["selectedAvatarId"] = selected_avatar_id(stage)
-    state["assets"]["currentFormId"] = evolution["formId"]
-    state["assets"]["currentFormName"] = evolution["formName"]
-    state["assets"]["currentPath"] = evolution["path"]
     lifecycle = state.setdefault("lifecycle", deepcopy(DEFAULT_LIFECYCLE))
     lifecycle["status"] = "alive"
     lifecycle["lastInteractionAt"] = stamp
@@ -2001,17 +2296,256 @@ def session_log_checkpoints_at_end(root: Path | None = None) -> dict[str, dict[s
     return checkpoints
 
 
-def stage_asset_dir(stage: str) -> Path:
+def pet_pack_root(pack_id: str) -> Path:
+    pack_id = validate_pet_pack_id(pack_id)
+    return pet_packs_dir() / pack_id
+
+
+def resolve_pack_stage_path(pack_root: Path, raw_path: Any) -> Path:
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        raise SystemExit("Pet pack stage paths must be non-empty strings.")
+    if re.match(r"^[A-Za-z]:", raw_path) or raw_path.startswith(("/", "\\")):
+        raise SystemExit("Pet pack stage paths must be relative paths.")
+    candidate = (pack_root / raw_path).resolve()
+    root = pack_root.resolve()
+    if not candidate.is_relative_to(root):
+        raise SystemExit("Pet pack stage paths cannot leave the pack folder.")
+    return candidate
+
+
+def validate_stage_package(stage_dir: Path, *, label: str) -> dict[str, Any]:
+    manifest_path = stage_dir / "pet.json"
+    sprite_path = stage_dir / "spritesheet.webp"
+    if not manifest_path.exists():
+        raise SystemExit(f"Missing pet.json for {label}: {manifest_path}")
+    if not sprite_path.exists():
+        raise SystemExit(f"Missing spritesheet.webp for {label}: {sprite_path}")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"pet.json is not valid JSON for {label}: {manifest_path} ({exc})") from exc
+    if not isinstance(manifest, dict):
+        raise SystemExit(f"pet.json must contain a JSON object for {label}: {manifest_path}")
+    if manifest.get("spritesheetPath", "spritesheet.webp") != "spritesheet.webp":
+        raise SystemExit(f"{manifest_path} must reference spritesheet.webp")
+    for key in ("id", "displayName"):
+        if key in manifest and (not isinstance(manifest[key], str) or not manifest[key].strip()):
+            raise SystemExit(f"{manifest_path} has an invalid {key}")
+    if "description" in manifest and not isinstance(manifest["description"], str):
+        raise SystemExit(f"{manifest_path} has an invalid description")
+    return manifest
+
+
+def validate_pet_pack_form(root: Path, pack_id: str, stage: str, form: Any) -> dict[str, Any]:
+    if not isinstance(form, dict):
+        raise SystemExit(f"Pet pack form for {pack_id}:{stage} must be an object.")
+    form_id = validate_pet_pack_id(form.get("id"))
+    asset_path = form.get("assetPath")
+    if asset_path is None:
+        raise SystemExit(f"Pet pack form '{form_id}' is missing assetPath.")
+    asset_dir = resolve_pack_stage_path(root, asset_path)
+    validate_stage_package(asset_dir, label=f"{pack_id}:{stage}:{form_id}")
+    cleaned = dict(form)
+    cleaned["id"] = form_id
+    cleaned["name"] = str(cleaned.get("name") or cleaned.get("displayName") or form_id).strip() or form_id
+    cleaned["assetPath"] = asset_path
+    cleaned["path"] = str(cleaned.get("path") or form_id)
+    cleaned["default"] = bool(cleaned.get("default", False))
+    evolves_from = cleaned.get("evolvesFrom", [])
+    if evolves_from is None:
+        evolves_from = []
+    if not isinstance(evolves_from, list):
+        raise SystemExit(f"Pet pack form '{form_id}' evolvesFrom must be a list.")
+    cleaned["evolvesFrom"] = [validate_pet_pack_id(item) for item in evolves_from]
+    for key in ("requirements", "dw1Requirements", "sourceRequirements"):
+        if key in cleaned and not isinstance(cleaned[key], dict):
+            raise SystemExit(f"Pet pack form '{form_id}' {key} must be an object.")
+    return cleaned
+
+
+def validate_pet_pack_forms(root: Path, pack_id: str, forms: Any) -> dict[str, list[dict[str, Any]]]:
+    if not isinstance(forms, dict):
+        raise SystemExit("Pet pack forms must be an object keyed by stage.")
+    cleaned: dict[str, list[dict[str, Any]]] = {}
+    seen_ids: set[str] = set()
+    for stage in STAGES:
+        raw_stage_forms = forms.get(stage, [])
+        if not isinstance(raw_stage_forms, list):
+            raise SystemExit(f"Pet pack forms.{stage} must be a list.")
+        cleaned[stage] = []
+        for form in raw_stage_forms:
+            cleaned_form = validate_pet_pack_form(root, pack_id, stage, form)
+            if cleaned_form["id"] in seen_ids:
+                raise SystemExit(f"Duplicate pet pack form id: {cleaned_form['id']}")
+            seen_ids.add(cleaned_form["id"])
+            cleaned[stage].append(cleaned_form)
+        if not cleaned[stage]:
+            raise SystemExit(f"Pet pack forms.{stage} must include at least one form.")
+    return cleaned
+
+
+def find_pet_pack_root(path: Path) -> Path:
+    root = path.expanduser().resolve()
+    if (root / "pack.json").exists():
+        return root
+    candidates = [child for child in root.iterdir() if child.is_dir() and (child / "pack.json").exists()]
+    if len(candidates) == 1:
+        return candidates[0]
+    raise SystemExit(f"Could not find pack.json at {root}")
+
+
+def validate_pet_pack_root(root: Path) -> dict[str, Any]:
+    root = find_pet_pack_root(root)
+    manifest_path = root / "pack.json"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"pack.json is not valid JSON: {manifest_path} ({exc})") from exc
+    if not isinstance(manifest, dict):
+        raise SystemExit(f"pack.json must contain a JSON object: {manifest_path}")
+    if safe_int(manifest.get("schemaVersion")) != 1:
+        raise SystemExit("Pet pack schemaVersion must be 1.")
+    pack_id = validate_pet_pack_id(manifest.get("id"))
+    if pack_id == BUILTIN_PACK_ID:
+        raise SystemExit(f"'{BUILTIN_PACK_ID}' is reserved for bundled pets.")
+    stages = manifest.get("stages")
+    forms = manifest.get("forms")
+    if not isinstance(stages, dict) and not isinstance(forms, dict):
+        raise SystemExit("Pet pack must define either a stages object or a forms object.")
+    cleaned_forms = validate_pet_pack_forms(root, pack_id, forms) if isinstance(forms, dict) else None
+    if isinstance(stages, dict):
+        for stage in STAGES:
+            if stage not in stages:
+                raise SystemExit(f"Pet pack is missing stage '{stage}'.")
+            stage_dir = resolve_pack_stage_path(root, stages[stage])
+            validate_stage_package(stage_dir, label=f"{pack_id}:{stage}")
+    cleaned = dict(manifest)
+    cleaned["id"] = pack_id
+    cleaned["name"] = str(cleaned.get("name") or pack_id).strip() or pack_id
+    cleaned["author"] = str(cleaned.get("author") or "").strip()
+    cleaned["description"] = str(cleaned.get("description") or "").strip()
+    if isinstance(stages, dict):
+        cleaned["stages"] = {stage: stages[stage] for stage in STAGES}
+    elif cleaned_forms is not None:
+        cleaned["stages"] = {stage: cleaned_forms[stage][0]["assetPath"] for stage in STAGES}
+    if cleaned_forms is not None:
+        cleaned["forms"] = cleaned_forms
+    return cleaned
+
+
+def load_installed_pet_pack(pack_id: str) -> tuple[Path, dict[str, Any]]:
+    pack_id = validate_pet_pack_id(pack_id)
+    if pack_id == BUILTIN_PACK_ID:
+        return ASSET_ROOT.parent, builtin_pack_manifest()
+    root = pet_pack_root(pack_id)
+    if not root.exists():
+        raise SystemExit(f"Pet pack '{pack_id}' is not installed. Run: pets list")
+    return find_pet_pack_root(root), validate_pet_pack_root(root)
+
+
+def pet_pack_display_name(pack_id: str) -> str:
+    try:
+        _root, manifest = load_installed_pet_pack(pack_id)
+        return str(manifest.get("name") or pack_id)
+    except SystemExit:
+        return pack_id
+
+
+def pet_pack_form_ids(pack_id: str) -> set[str]:
+    try:
+        _root, manifest = load_installed_pet_pack(pack_id)
+    except SystemExit:
+        return set()
+    ids: set[str] = set()
+    for forms in manifest.get("forms", {}).values():
+        if isinstance(forms, list):
+            ids.update(str(form.get("id", "")) for form in forms if isinstance(form, dict))
+    return {form_id for form_id in ids if form_id}
+
+
+def iter_installed_pet_packs() -> list[dict[str, Any]]:
+    packs = []
+    packs.append(
+        {
+            "id": BUILTIN_PACK_ID,
+            "name": builtin_pack_manifest()["name"],
+            "author": builtin_pack_manifest()["author"],
+            "description": builtin_pack_manifest()["description"],
+            "builtin": True,
+            "path": str(ASSET_ROOT),
+            "forms": 0,
+        }
+    )
+    root = pet_packs_dir()
+    if root.exists():
+        for child in sorted(root.iterdir(), key=lambda item: item.name.lower()):
+            if not child.is_dir():
+                continue
+            try:
+                pack_root, manifest = load_installed_pet_pack(child.name)
+            except SystemExit as exc:
+                packs.append(
+                    {
+                        "id": child.name,
+                        "name": child.name,
+                        "author": "",
+                        "description": "",
+                        "builtin": False,
+                        "path": str(child),
+                        "error": str(exc),
+                        "forms": 0,
+                    }
+                )
+                continue
+            form_count = sum(len(forms) for forms in manifest.get("forms", {}).values() if isinstance(forms, list))
+            packs.append(
+                {
+                    "id": manifest["id"],
+                    "name": manifest["name"],
+                    "author": manifest.get("author", ""),
+                    "description": manifest.get("description", ""),
+                    "builtin": False,
+                    "path": str(pack_root),
+                    "forms": form_count,
+                }
+            )
+    return packs
+
+
+def form_asset_path_from_manifest(pack_root: Path, manifest: dict[str, Any], stage: str, form_id: str | None = None) -> Path | None:
+    forms = pack_forms_for_stage(manifest, stage)
+    if not forms:
+        return None
+    selected = None
+    if form_id:
+        for form in forms:
+            if str(form.get("id")) == form_id:
+                selected = form
+                break
+    if selected is None:
+        selected = pack_default_form(forms)
+    if selected is None:
+        return None
+    return resolve_pack_stage_path(pack_root, selected["assetPath"])
+
+
+def stage_asset_dir(stage: str, pack_id: str | None = None, form_id: str | None = None) -> Path:
     if stage not in STAGES:
         raise SystemExit(f"Unknown stage '{stage}'. Expected one of: {', '.join(STAGES)}")
-    path = ASSET_ROOT / stage
-    if not (path / "pet.json").exists() or not (path / "spritesheet.webp").exists():
-        raise SystemExit(f"Missing pet assets for stage '{stage}' in {path}")
+    resolved_pack_id = pack_id or active_pet_pack_id()
+    if resolved_pack_id == BUILTIN_PACK_ID:
+        path = ASSET_ROOT / stage
+    else:
+        pack_root, manifest = load_installed_pet_pack(resolved_pack_id)
+        path = form_asset_path_from_manifest(pack_root, manifest, stage, form_id)
+        if path is None:
+            path = resolve_pack_stage_path(pack_root, manifest["stages"][stage])
+    validate_stage_package(path, label=f"{resolved_pack_id}:{stage}")
     return path
 
 
-def write_pet_package(stage: str, target_dir: Path, pet_id: str, *, sprite_name: str) -> Path:
-    source_dir = stage_asset_dir(stage)
+def write_pet_package(stage: str, target_dir: Path, pet_id: str, *, sprite_name: str, form_id: str | None = None) -> Path:
+    source_dir = stage_asset_dir(stage, form_id=form_id)
     target_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source_dir / "spritesheet.webp", target_dir / sprite_name)
 
@@ -2026,12 +2560,15 @@ def write_pet_package(stage: str, target_dir: Path, pet_id: str, *, sprite_name:
     return target_dir
 
 
-def install_stage_package(stage: str) -> Path:
-    return write_pet_package(stage, active_pet_dir(stage), stage_pet_id(stage), sprite_name=f"spritesheet-{stage}.webp")
+def install_stage_package(stage: str, *, state: dict[str, Any] | None = None) -> Path:
+    form_id = None
+    if state is not None and state.get("stage") == stage:
+        form_id = str(state.get("evolution", {}).get("formId") or "")
+    return write_pet_package(stage, active_pet_dir(stage), stage_pet_id(stage), sprite_name=f"spritesheet-{stage}.webp", form_id=form_id)
 
 
-def install_all_stage_packages() -> dict[str, Path]:
-    return {stage: install_stage_package(stage) for stage in STAGES}
+def install_all_stage_packages(*, state: dict[str, Any] | None = None) -> dict[str, Path]:
+    return {stage: install_stage_package(stage, state=state) for stage in STAGES}
 
 
 def cleanup_legacy_pet_package() -> None:
@@ -2052,15 +2589,18 @@ def cleanup_legacy_pet_package() -> None:
 
 
 def install_stage(stage: str, *, state: dict[str, Any] | None = None) -> Path:
-    stage_dirs = install_all_stage_packages()
+    if state is None:
+        state = load_state()
+    stage_dirs = install_all_stage_packages(state=state)
     cleanup_legacy_pet_package()
     target_dir = stage_dirs[stage]
     config_path = select_codex_avatar(stage)
+    pack_id = active_pet_pack_id()
 
-    if state is None:
-        state = load_state()
     state["stage"] = stage
     state["assets"]["currentStage"] = stage
+    state["assets"]["activePetPack"] = pack_id
+    state["assets"]["activePetPackName"] = pet_pack_display_name(pack_id)
     state["assets"]["activePetId"] = stage_pet_id(stage)
     state["assets"]["installedPetPath"] = str(target_dir)
     state["assets"]["selectedAvatarId"] = selected_avatar_id(stage)
@@ -2068,6 +2608,189 @@ def install_stage(stage: str, *, state: dict[str, Any] | None = None) -> Path:
     state["assets"]["installedStagePetPaths"] = {key: str(value) for key, value in stage_dirs.items()}
     save_state(state)
     return target_dir
+
+
+def is_safe_zip_member(name: str) -> bool:
+    normalized = name.replace("\\", "/")
+    if normalized.startswith("/") or re.match(r"^[A-Za-z]:", normalized):
+        return False
+    parts = [part for part in normalized.split("/") if part]
+    return bool(parts) and all(part not in {".", ".."} for part in parts)
+
+
+def extract_pet_pack_zip(source: Path, target: Path) -> None:
+    with zipfile.ZipFile(source) as archive:
+        for member in archive.infolist():
+            if not is_safe_zip_member(member.filename):
+                raise SystemExit(f"Unsafe path in pet pack zip: {member.filename}")
+        for member in archive.infolist():
+            if member.is_dir():
+                continue
+            relative = Path(*[part for part in member.filename.replace("\\", "/").split("/") if part])
+            destination = target / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            with archive.open(member) as source_handle, destination.open("wb") as target_handle:
+                shutil.copyfileobj(source_handle, target_handle)
+
+
+def import_pet_pack(source: Path, *, replace: bool = False) -> dict[str, Any]:
+    source = source.expanduser().resolve()
+    if not source.exists():
+        raise SystemExit(f"Pet pack source does not exist: {source}")
+
+    with tempfile.TemporaryDirectory() as tmp_name:
+        tmp_root = Path(tmp_name)
+        if source.is_file():
+            if source.suffix.lower() != ".zip":
+                raise SystemExit("Pet pack files must be .zip archives.")
+            extract_pet_pack_zip(source, tmp_root)
+            pack_root = find_pet_pack_root(tmp_root)
+        elif source.is_dir():
+            pack_root = find_pet_pack_root(source)
+        else:
+            raise SystemExit(f"Pet pack source must be a folder or .zip file: {source}")
+
+        manifest = validate_pet_pack_root(pack_root)
+        destination = pet_pack_root(manifest["id"])
+        if destination.exists() and not replace:
+            raise SystemExit(f"Pet pack '{manifest['id']}' is already installed. Use --replace to overwrite it.")
+
+        parent = destination.parent
+        parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=str(parent)) as staging_name:
+            staging = Path(staging_name) / manifest["id"]
+            shutil.copytree(pack_root, staging)
+            if destination.exists():
+                shutil.rmtree(destination)
+            shutil.move(str(staging), destination)
+
+    return validate_pet_pack_root(destination)
+
+
+def select_pet_pack(pack_id: str) -> Path:
+    pack_id = validate_pet_pack_id(pack_id)
+    _pack_root, manifest = load_installed_pet_pack(pack_id)
+    settings = load_settings()
+    settings.setdefault("pets", {})["activePack"] = pack_id
+    starter_id = str(settings.get("pets", {}).get("starterForm", ""))
+    if starter_id and pack_form_by_id(manifest, "baby", starter_id) is None:
+        settings["pets"]["starterForm"] = ""
+    save_settings(settings)
+    state = load_state()
+    form = choose_form_for_stage(state, state.get("stage", "baby"))
+    apply_form(state, state.get("stage", "baby"), form)
+    return install_stage(state.get("stage", "baby"), state=state)
+
+
+def do_pets_list(args: argparse.Namespace) -> int:
+    active = active_pet_pack_id()
+    packs = iter_installed_pet_packs()
+    if args.json:
+        print(json.dumps({"activePack": active, "packs": packs}, indent=2, sort_keys=True))
+        return 0
+    print(f"Pet packs path: {pet_packs_dir()}")
+    print(f"Active pet pack: {active}")
+    for pack in packs:
+        marker = "*" if pack["id"] == active else "-"
+        source = "builtin" if pack.get("builtin") else "custom"
+        error = f" ({pack['error']})" if pack.get("error") else ""
+        forms = f" | {pack['forms']} forms" if pack.get("forms") else ""
+        print(f"{marker} {pack['id']} | {pack['name']} | {source}{forms}{error}")
+    return 0
+
+
+def do_pets_import(args: argparse.Namespace) -> int:
+    manifest = import_pet_pack(Path(args.source), replace=args.replace)
+    print(f"Imported pet pack '{manifest['id']}' ({manifest['name']})")
+    if args.select:
+        target = select_pet_pack(manifest["id"])
+        print(f"Selected pet pack '{manifest['id']}' and installed current stage to {target}")
+    return 0
+
+
+def do_pets_select(args: argparse.Namespace) -> int:
+    target = select_pet_pack(args.pack_id)
+    print(f"Selected pet pack '{validate_pet_pack_id(args.pack_id)}'")
+    print(f"Installed current stage to {target}")
+    return 0
+
+
+def do_pets_forms(args: argparse.Namespace) -> int:
+    pack_id = validate_pet_pack_id(args.pack_id) if args.pack_id else active_pet_pack_id()
+    _pack_root, manifest = load_installed_pet_pack(pack_id)
+    forms = {
+        stage: [
+            {
+                "id": str(form.get("id")),
+                "name": str(form.get("name") or form.get("displayName") or form.get("id")),
+                "default": bool(form.get("default", False)),
+                "evolvesFrom": list(form.get("evolvesFrom", [])) if isinstance(form.get("evolvesFrom", []), list) else [],
+                "hasRequirements": isinstance(form.get("requirements"), dict),
+            }
+            for form in pack_forms_for_stage(manifest, stage)
+        ]
+        for stage in STAGES
+    }
+    selected_starter = active_starter_form_id() if pack_id == active_pet_pack_id() else ""
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "packId": pack_id,
+                    "packName": manifest.get("name", pack_id),
+                    "activePack": active_pet_pack_id(),
+                    "selectedStarter": selected_starter,
+                    "forms": forms,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+    print(f"Pet pack: {pack_id} | {manifest.get('name', pack_id)}")
+    if not any(forms.values()):
+        print("This pack uses one fixed form per stage and has no selectable starters.")
+        return 0
+    if selected_starter:
+        print(f"Selected starter: {selected_starter}")
+    for stage in STAGES:
+        print(f"{stage}:")
+        for form in forms[stage]:
+            marker = "*" if stage == "baby" and form["id"] == selected_starter else "-"
+            default = " default" if form["default"] else ""
+            evolves_from = f" <- {', '.join(form['evolvesFrom'])}" if form["evolvesFrom"] else ""
+            requirements = " requirements" if form["hasRequirements"] else ""
+            print(f"  {marker} {form['id']} | {form['name']}{default}{evolves_from}{requirements}")
+    return 0
+
+
+def do_pets_hatch(args: argparse.Namespace) -> int:
+    pack_id = active_pet_pack_id()
+    if pack_id == BUILTIN_PACK_ID:
+        raise SystemExit("Select a branching pet pack before hatching a starter.")
+    _pack_root, manifest = load_installed_pet_pack(pack_id)
+    form_id = validate_pet_pack_id(args.form_id)
+    form = pack_form_by_id(manifest, "baby", form_id)
+    if form is None:
+        raise SystemExit(f"Baby form '{form_id}' is not available in active pack '{pack_id}'. Run: pets forms")
+
+    settings = load_settings()
+    settings.setdefault("pets", {})["starterForm"] = form_id
+    save_settings(settings)
+
+    state = default_state()
+    state["evolution"]["lineage"] = []
+    apply_form(state, "baby", choose_form_for_stage(state, "baby"))
+    if not args.include_history:
+        root = Path(args.sessions_dir).expanduser().resolve() if args.sessions_dir else None
+        state["ingest"]["sessionLogs"] = session_log_checkpoints_at_end(root)
+        state["ingest"]["pendingTools"] = {}
+    save_state(state)
+    target = install_stage("baby", state=state)
+    suffix = " from current session-log position" if not args.include_history else " with existing session-log history enabled"
+    print(f"Hatched {form.get('name') or form_id} ({form_id}){suffix}.")
+    print(f"Installed baby stage to {target}")
+    return 0
 
 
 def do_status(args: argparse.Namespace) -> int:
@@ -2096,6 +2819,9 @@ def do_status(args: argparse.Namespace) -> int:
         f"gen {evolution['generation']}, path {evolution['path']}, "
         f"form {evolution['formId']}, care mistakes {evolution['careMistakes']}"
     )
+    settings = load_settings()
+    print(f"Pet pack: {state['assets'].get('activePetPack', BUILTIN_PACK_ID)} | {state['assets'].get('activePetPackName', '')}")
+    print(f"Starter form: {settings['pets'].get('starterForm') or 'pack default'}")
     if status == "dead":
         print(f"Lifecycle: rebirth in {format_duration(seconds_until(lifecycle.get('rebirthDueAt')))}")
     elif not lifecycle_death_enabled():
@@ -2185,6 +2911,7 @@ def do_install(args: argparse.Namespace) -> int:
     if lifecycle_change == "reborn":
         target = install_stage("baby", state=state)
     print(f"Installed Codex Tomogatchi stage '{state['stage']}' to {target}")
+    print(f"Pet pack: {state['assets'].get('activePetPack', BUILTIN_PACK_ID)} | {state['assets'].get('activePetPackName', '')}")
     print(f"Selected Codex avatar: {selected_avatar_id(state['stage'])}")
     return 0
 
@@ -2273,6 +3000,8 @@ def do_settings(args: argparse.Namespace) -> int:
         print(f"XP pace: {settings['xp']['pace']} (daily cap {daily_xp_cap()})")
         print(f"Death enabled: {settings['lifecycle']['deathEnabled']}")
         print(f"Care-call strictness: {settings['care']['callStrictness']}")
+        print(f"Active pet pack: {settings['pets']['activePack']}")
+        print(f"Starter form: {settings['pets'].get('starterForm') or 'pack default'}")
         print(
             "Overlay: "
             f"alwaysOnTop={settings['overlay']['alwaysOnTop']}, "
@@ -2286,6 +3015,8 @@ def do_reset(args: argparse.Namespace) -> int:
     if not args.confirm:
         raise SystemExit("Refusing to reset without --confirm.")
     state = default_state()
+    state["evolution"]["lineage"] = []
+    apply_form(state, "baby", choose_form_for_stage(state, "baby"))
     if args.from_now:
         root = Path(args.sessions_dir).expanduser().resolve() if args.sessions_dir else None
         state["ingest"]["sessionLogs"] = session_log_checkpoints_at_end(root)
@@ -2378,6 +3109,38 @@ def build_parser() -> argparse.ArgumentParser:
     settings.add_argument("key", nargs="?", help="Optional section.key setting to update")
     settings.add_argument("value", nargs="?", help="Value to set when key is provided")
     settings.set_defaults(func=do_settings)
+
+    pets = sub.add_parser("pets", help="Import, list, and select custom pet packs")
+    pets_sub = pets.add_subparsers(dest="pets_command", required=True)
+
+    pets_list = pets_sub.add_parser("list", help="List installed pet packs")
+    pets_list.add_argument("--json", action="store_true", help="Print raw pet-pack JSON")
+    pets_list.set_defaults(func=do_pets_list)
+
+    pets_forms = pets_sub.add_parser("forms", help="List forms in the active or selected pet pack")
+    pets_forms.add_argument("--pack-id", help="Installed pack id to inspect instead of the active pack")
+    pets_forms.add_argument("--json", action="store_true", help="Print raw form JSON")
+    pets_forms.set_defaults(func=do_pets_forms)
+
+    pets_import = pets_sub.add_parser("import", help="Import a pet-pack folder or zip")
+    pets_import.add_argument("source", help="Path to a pet-pack folder or .zip archive")
+    pets_import.add_argument("--replace", action="store_true", help="Replace an installed pack with the same id")
+    pets_import.add_argument("--select", action="store_true", help="Select the pack after importing it")
+    pets_import.set_defaults(func=do_pets_import)
+
+    pets_select = pets_sub.add_parser("select", help="Select an installed pet pack")
+    pets_select.add_argument("pack_id", help="Installed pack id, or 'default' for bundled pets")
+    pets_select.set_defaults(func=do_pets_select)
+
+    pets_hatch = pets_sub.add_parser("hatch", help="Choose a baby form in the active branching pack and reset from now")
+    pets_hatch.add_argument("form_id", help="Baby form id from 'pets forms'")
+    pets_hatch.add_argument(
+        "--include-history",
+        action="store_true",
+        help="Allow existing session-log history to replay after hatching",
+    )
+    pets_hatch.add_argument("--sessions-dir", help="Override the Codex sessions directory for the default from-now checkpoint")
+    pets_hatch.set_defaults(func=do_pets_hatch)
 
     reset = sub.add_parser("reset", help="Reset local Tomogatchi state")
     reset.add_argument("--confirm", action="store_true")

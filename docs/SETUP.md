@@ -78,6 +78,52 @@ Start overlay in full mode:
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings overlay.startMode full
 ```
 
+## Custom Pet Packs
+
+List packs:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
+```
+
+List forms in the active pack:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
+```
+
+Import and select a pack:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
+```
+
+Choose a baby starter from a branching pack:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
+```
+
+Return to bundled pets:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
+```
+
+Custom packs are asset-only folders or zip files with `pack.json` and `baby`, `teen`, and `adult` stage folders. Each stage must include `pet.json` and `spritesheet.webp`.
+
+Use the bundled branching Digimon World 1 Agumon example:
+
+```powershell
+py -3 scripts/generate_dw1_agumon_pack.py
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\digimon-world-1-agumon --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
+```
+
+Branching packs can define multiple `forms` per stage. The DW1 example stores the original-style stats, care mistake, weight, and bonus groups in `pack.json`, then uses the local Codex Tomogatchi raising stats to choose the matching form.
+`pets hatch <baby-form-id>` resets to baby from the current session-log position by default, so old Codex logs do not immediately evolve a new starter.
+
 ## Optional Windows Autostart
 
 Install a no-admin Scheduled Task that starts Codex Tomogatchi when you log in:

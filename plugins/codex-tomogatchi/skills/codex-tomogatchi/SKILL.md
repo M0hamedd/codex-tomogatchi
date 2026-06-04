@@ -28,6 +28,12 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care-call --json
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings --json
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings xp.pace slow
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\digimon-world-1-agumon --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py reset --confirm
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py reset --confirm --from-now
 npm start
@@ -45,6 +51,8 @@ Use `python3` instead of `py -3` on macOS/Linux.
 - `profile` reports the current generation's logical evolution path, care mistakes, care points, focus points, training points, care calls, and lineage.
 - `care-call` checks the current active care call. `care-call --force <kind>` creates a test call.
 - `settings` shows or updates settings under `${CODEX_HOME:-~/.codex}/codex-tomogatchi/settings.json`.
+- `pets list|forms|import|select|hatch` manages asset-only custom pet packs stored under `${CODEX_HOME:-~/.codex}/codex-tomogatchi/pet-packs`.
+- `pets hatch <baby-form-id>` chooses a branching-pack starter and resets to baby from the current session-log position by default.
 - `npm start` launches the Electron overlay with tray, compact/full modes, resizing, and live reactions.
 
 ## Default Pets
@@ -54,6 +62,24 @@ Bundled default assets are original generated pixel pets:
 - Sparkbit: baby
 - Byteclaw: teen
 - Coremaw: adult
+
+## Custom Pet Packs
+
+Custom packs are folders or `.zip` files with this layout:
+
+```text
+pack.json
+stages/baby/pet.json
+stages/baby/spritesheet.webp
+stages/teen/pet.json
+stages/teen/spritesheet.webp
+stages/adult/pet.json
+stages/adult/spritesheet.webp
+```
+
+Use `pets import <path> --select` to install and activate a pack. Use `pets forms` to inspect branching forms, `pets hatch <baby-form-id>` to choose a starter, and `pets select default` to return to the bundled line. Packs are assets only; never run scripts from a pack.
+
+Branching packs can define `forms` with per-form `assetPath`, optional `evolvesFrom`, and requirements. The bundled example at `examples/pet-packs/digimon-world-1-agumon` uses Digimon World 1-style requirement groups: stats, care mistakes, weight, and bonus, with 3 of 4 groups required by default. Its requirement data is source-backed; its sprites are local concept atlases, not ripped game assets.
 
 ## XP Rules
 

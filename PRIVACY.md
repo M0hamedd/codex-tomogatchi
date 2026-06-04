@@ -15,7 +15,7 @@ The app stores:
 - XP, level, stage, lifecycle status, and timestamps.
 - Pet stats: fullness, energy, mood, and stress.
 - Aggregate counters: prompts, sessions, turns, tool uses, successful tools, and failed tools.
-- Aggregate evolution metadata: care points, missed/answered care-call counts, care mistakes, focus points, training points, and lineage.
+- Aggregate evolution metadata: care points, missed/answered care-call counts, care mistakes, focus points, training points, DW1-style derived raising stats, and lineage.
 - Live reaction metadata: reaction kind, canned message, timestamp, expiry, and sequence id.
 - Session-log checkpoints: hashed file path keys, byte offsets, file sizes, mtimes, and whether a session start was already counted.
 - Overlay settings and window bounds.

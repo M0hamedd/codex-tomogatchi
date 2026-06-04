@@ -1,0 +1,653 @@
+{
+  "author": "Codex Tomogatchi Contributors",
+  "description": "A branching example pack based on Digimon World 1 Agumon evolution requirements.",
+  "forms": {
+    "adult": [
+      {
+        "assetPath": "forms/adult/metalgreymon",
+        "evolvesFrom": [
+          "greymon",
+          "meramon",
+          "monochromon",
+          "tyrannomon"
+        ],
+        "id": "metalgreymon",
+        "name": "MetalGreymon",
+        "path": "dw1-metalgreymon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "disciplineMin": 95
+              },
+              {
+                "battlesMin": 30
+              },
+              {
+                "techniquesMin": 30
+              }
+            ],
+            "careMistakes": {
+              "max": 10
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 300,
+              "defense": 500,
+              "hp": 4000,
+              "mp": 3000,
+              "offense": 500,
+              "speed": 300
+            },
+            "weight": {
+              "max": 70,
+              "min": 60
+            }
+          },
+          "reason": "DW1 MetalGreymon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "1172-1187",
+          "text": "Care <= 10, weight 60-70, discipline >= 95 or battles >= 30 or techniques >= 30, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/adult/skullgreymon",
+        "evolvesFrom": [
+          "greymon"
+        ],
+        "id": "skullgreymon",
+        "name": "SkullGreymon",
+        "path": "dw1-skullgreymon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "battlesMin": 40
+              },
+              {
+                "techniquesMin": 45
+              }
+            ],
+            "careMistakes": {
+              "min": 10
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 500,
+              "defense": 400,
+              "hp": 4000,
+              "mp": 6000,
+              "offense": 400,
+              "speed": 200
+            },
+            "weight": {
+              "max": 35,
+              "min": 25
+            }
+          },
+          "reason": "DW1 SkullGreymon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "1204-1219",
+          "text": "Care >= 10, weight 25-35, battles >= 40 or techniques >= 45, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/adult/andromon",
+        "evolvesFrom": [
+          "meramon",
+          "centarumon"
+        ],
+        "id": "andromon",
+        "name": "Andromon",
+        "path": "dw1-andromon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "disciplineMin": 95
+              },
+              {
+                "battlesMin": 30
+              },
+              {
+                "techniquesMin": 30
+              }
+            ],
+            "careMistakes": {
+              "max": 5
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 400,
+              "defense": 400,
+              "hp": 2000,
+              "mp": 4000,
+              "offense": 200,
+              "speed": 200
+            },
+            "weight": {
+              "max": 45,
+              "min": 35
+            }
+          },
+          "reason": "DW1 Andromon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "1188-1203",
+          "text": "Care <= 5, weight 35-45, discipline >= 95 or battles >= 30 or techniques >= 30, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/adult/phoenixmon",
+        "evolvesFrom": [
+          "birdramon"
+        ],
+        "id": "phoenixmon",
+        "name": "Phoenixmon",
+        "path": "dw1-phoenixmon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "disciplineMin": 100
+              },
+              {
+                "battlesMax": 0
+              },
+              {
+                "techniquesMin": 40
+              }
+            ],
+            "careMistakes": {
+              "max": 3
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 600,
+              "defense": 400,
+              "hp": 4000,
+              "mp": 4000,
+              "offense": 400,
+              "speed": 400
+            },
+            "weight": {
+              "max": 35,
+              "min": 25
+            }
+          },
+          "reason": "DW1 Phoenixmon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "1250-1265",
+          "text": "Care <= 3, weight 25-35, discipline >= 100 or battles <= 0 or techniques >= 40, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/adult/megadramon",
+        "evolvesFrom": [
+          "tyrannomon"
+        ],
+        "id": "megadramon",
+        "name": "Megadramon",
+        "path": "dw1-megadramon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "battlesMin": 30
+              },
+              {
+                "techniquesMin": 30
+              }
+            ],
+            "careMistakes": {
+              "max": 10
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 400,
+              "defense": 300,
+              "hp": 3000,
+              "mp": 5000,
+              "offense": 500,
+              "speed": 400
+            },
+            "weight": {
+              "max": 60,
+              "min": 50
+            }
+          },
+          "reason": "DW1 Megadramon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "1220-1235",
+          "text": "Care <= 10, weight 50-60, battles >= 30 or techniques >= 30, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/adult/metalmamemon",
+        "evolvesFrom": [
+          "monochromon"
+        ],
+        "id": "metalmamemon",
+        "name": "MetalMamemon",
+        "path": "dw1-metalmamemon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "happinessMin": 95
+              },
+              {
+                "techniquesMin": 30
+              }
+            ],
+            "careMistakes": {
+              "max": 15
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 400,
+              "defense": 400,
+              "hp": 3000,
+              "mp": 3000,
+              "offense": 500,
+              "speed": 400
+            },
+            "weight": {
+              "max": 15,
+              "min": 5
+            }
+          },
+          "reason": "DW1 MetalMamemon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "1295-1309",
+          "text": "Care <= 15, weight 5-15, happiness >= 95 or techniques >= 30, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/adult/giromon",
+        "evolvesFrom": [
+          "centarumon"
+        ],
+        "id": "giromon",
+        "name": "Giromon",
+        "path": "dw1-giromon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "happinessMin": 95
+              },
+              {
+                "battlesMin": 100
+              },
+              {
+                "techniquesMin": 35
+              }
+            ],
+            "careMistakes": {
+              "min": 15
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 400,
+              "defense": 600,
+              "hp": 3000,
+              "mp": 3000,
+              "offense": 400,
+              "speed": 300
+            },
+            "weight": {
+              "max": 10,
+              "min": 0
+            }
+          },
+          "reason": "DW1 Giromon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "1235-1249",
+          "text": "Care >= 15, weight 0-10, happiness >= 95 or battles >= 100 or techniques >= 35, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/adult/monzaemon",
+        "default": true,
+        "evolvesFrom": [
+          "numemon"
+        ],
+        "id": "monzaemon",
+        "name": "Monzaemon",
+        "path": "dw1-monzaemon",
+        "reason": "DW1 Numemon special evolution counterpart",
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "2447-2451",
+          "text": "Numemon can become Monzaemon by talking to the Monzaemon suit in Toy Town."
+        }
+      }
+    ],
+    "baby": [
+      {
+        "assetPath": "forms/baby/agumon",
+        "default": true,
+        "id": "agumon",
+        "name": "Agumon",
+        "path": "rookie",
+        "reason": "Koromon-to-Agumon starter for this DW1 pack",
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "638-654",
+          "text": "Agumon evolves from Koromon and can evolve to Greymon, Meramon, Birdramon, Centarumon, Monochromon, and Tyrannomon."
+        }
+      }
+    ],
+    "teen": [
+      {
+        "assetPath": "forms/teen/greymon",
+        "evolvesFrom": [
+          "agumon"
+        ],
+        "id": "greymon",
+        "name": "Greymon",
+        "path": "dw1-greymon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "disciplineMin": 90
+              },
+              {
+                "techniquesMin": 35
+              }
+            ],
+            "careMistakes": {
+              "max": 1
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 100,
+              "defense": 100,
+              "hp": 2000,
+              "mp": 1500,
+              "offense": 100,
+              "speed": 100
+            },
+            "weight": {
+              "max": 35,
+              "min": 25
+            }
+          },
+          "reason": "DW1 Greymon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "782-794",
+          "text": "Care <= 1, weight 25-35, discipline >= 90 or techniques >= 35, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/teen/meramon",
+        "evolvesFrom": [
+          "agumon"
+        ],
+        "id": "meramon",
+        "name": "Meramon",
+        "path": "dw1-meramon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "battlesMin": 10
+              },
+              {
+                "techniquesMin": 28
+              }
+            ],
+            "careMistakes": {
+              "min": 5
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 150,
+              "defense": 150,
+              "hp": 1000,
+              "mp": 1500,
+              "offense": 100,
+              "speed": 150
+            },
+            "weight": {
+              "max": 25,
+              "min": 15
+            }
+          },
+          "reason": "DW1 Meramon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "795-807",
+          "text": "Care >= 5, weight 15-25, battles >= 10 or techniques >= 28, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/teen/birdramon",
+        "evolvesFrom": [
+          "agumon"
+        ],
+        "id": "birdramon",
+        "name": "Birdramon",
+        "path": "dw1-birdramon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "techniquesMin": 35
+              }
+            ],
+            "careMistakes": {
+              "min": 3
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 150,
+              "defense": 100,
+              "hp": 1500,
+              "mp": 1500,
+              "offense": 150,
+              "speed": 100
+            },
+            "weight": {
+              "max": 25,
+              "min": 15
+            }
+          },
+          "reason": "DW1 Birdramon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "808-820",
+          "text": "Care >= 3, weight 15-25, techniques >= 35, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/teen/centarumon",
+        "evolvesFrom": [
+          "agumon"
+        ],
+        "id": "centarumon",
+        "name": "Centarumon",
+        "path": "dw1-centarumon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "disciplineMin": 60
+              },
+              {
+                "techniquesMin": 28
+              }
+            ],
+            "careMistakes": {
+              "max": 3
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 100,
+              "defense": 150,
+              "hp": 1500,
+              "mp": 1500,
+              "offense": 150,
+              "speed": 150
+            },
+            "weight": {
+              "max": 35,
+              "min": 25
+            }
+          },
+          "reason": "DW1 Centarumon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "821-834",
+          "text": "Care <= 3, weight 25-35, discipline >= 60 or techniques >= 28, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/teen/monochromon",
+        "evolvesFrom": [
+          "agumon"
+        ],
+        "id": "monochromon",
+        "name": "Monochromon",
+        "path": "dw1-monochromon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "battlesMax": 5
+              },
+              {
+                "techniquesMin": 35
+              }
+            ],
+            "careMistakes": {
+              "max": 3
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 100,
+              "defense": 100,
+              "hp": 1000,
+              "mp": 1500,
+              "offense": 150,
+              "speed": 150
+            },
+            "weight": {
+              "max": 45,
+              "min": 35
+            }
+          },
+          "reason": "DW1 Monochromon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "835-848",
+          "text": "Care <= 3, weight 35-45, battles <= 5 or techniques >= 35, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/teen/tyrannomon",
+        "evolvesFrom": [
+          "agumon"
+        ],
+        "id": "tyrannomon",
+        "name": "Tyrannomon",
+        "path": "dw1-tyrannomon",
+        "requirements": {
+          "dw1": {
+            "bonus": [
+              {
+                "battlesMax": 5
+              },
+              {
+                "techniquesMin": 28
+              }
+            ],
+            "careMistakes": {
+              "max": 5
+            },
+            "groupsRequired": 3,
+            "stats": {
+              "brains": 150,
+              "defense": 100,
+              "hp": 1000,
+              "mp": 1500,
+              "offense": 150,
+              "speed": 150
+            },
+            "weight": {
+              "max": 35,
+              "min": 25
+            }
+          },
+          "reason": "DW1 Tyrannomon groups matched"
+        },
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "862-875",
+          "text": "Care <= 5, weight 25-35, battles <= 5 or techniques >= 28, and listed stats."
+        }
+      },
+      {
+        "assetPath": "forms/teen/numemon",
+        "default": true,
+        "evolvesFrom": [
+          "agumon"
+        ],
+        "id": "numemon",
+        "name": "Numemon",
+        "path": "dw1-numemon",
+        "reason": "DW1 special fallback when Rookie requirements are missed",
+        "sourceRequirements": {
+          "game": "Digimon World (PlayStation)",
+          "source": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1",
+          "sourceLines": "2380-2384",
+          "text": "Any Rookie can become Numemon after 96h on Rookie level; stats are reduced by 20%."
+        }
+      }
+    ]
+  },
+  "id": "digimon-world-1-agumon",
+  "name": "Digimon World 1 Agumon Line",
+  "schemaVersion": 1,
+  "source": {
+    "name": "Digimon World - Evolution Guide by SydMontague",
+    "notes": "Natural evolutions use the original 3-of-4 DW1 requirement groups: stats, care mistakes, weight, and bonus.",
+    "url": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1"
+  }
+}

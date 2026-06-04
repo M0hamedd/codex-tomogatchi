@@ -1,0 +1,54 @@
+{
+  "name": "codex-tomogatchi-overlay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Always-on-top Electron overlay for the Codex Tomogatchi pet.",
+  "main": "overlay/main.js",
+  "scripts": {
+    "start": "electron .",
+    "overlay": "electron .",
+    "package": "npx --yes electron-builder --dir",
+    "dist": "npx --yes electron-builder",
+    "dist:win": "npx --yes electron-builder --win",
+    "status": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status",
+    "sync": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py sync",
+    "test": "py -3 -m unittest discover -s tests -v && node --check overlay/main.js && node --check overlay/preload.js && node --check overlay/renderer.js && py -3 scripts/validate_assets.py"
+  },
+  "build": {
+    "appId": "dev.codex.tomogatchi",
+    "productName": "Codex Tomogatchi",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "overlay/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "plugins/codex-tomogatchi",
+        "to": "plugins/codex-tomogatchi",
+        "filter": [
+          "assets/**/*",
+          "scripts/**/*",
+          ".codex-plugin/**/*",
+          "README.md"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^42.3.2"
+  }
+}

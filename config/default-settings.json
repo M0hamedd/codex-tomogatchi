@@ -1,0 +1,16 @@
+{
+  "care": {
+    "callStrictness": "normal"
+  },
+  "lifecycle": {
+    "deathEnabled": true
+  },
+  "overlay": {
+    "alwaysOnTop": true,
+    "startMinimized": false,
+    "startMode": "compact"
+  },
+  "xp": {
+    "pace": "normal"
+  }
+}

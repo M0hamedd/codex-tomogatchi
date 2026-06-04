@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codex Tomogatchi Overlay</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main id="overlay" class="overlay">
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+      <section class="pet-zone" aria-label="Codex Tomogatchi">
+        <canvas id="petCanvas" width="192" height="208"></canvas>
+        <div id="burst" class="burst" aria-hidden="true"></div>
+      </section>
+
+      <section class="hud" aria-live="polite">
+        <div class="identity">
+          <span id="petName" class="name">Tomogatchi</span>
+          <span id="petStage" class="stage">baby</span>
+        </div>
+        <div class="progress">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <div class="stats">
+          <span id="xpText">0 XP</span>
+          <span id="moodText">Mood 0</span>
+          <span id="stressText">Stress 0</span>
+        </div>
+      </section>
+
+      <nav class="actions" aria-label="Care actions">
+        <button class="icon-button" data-care="feed" title="Feed" aria-label="Feed">
+          <span class="icon bowl"></span>
+        </button>
+        <button class="icon-button" data-care="rest" title="Rest" aria-label="Rest">
+          <span class="icon rest"></span>
+        </button>
+        <button class="icon-button" data-care="play" title="Play" aria-label="Play">
+          <span class="icon play"></span>
+        </button>
+        <button class="icon-button" data-care="comfort" title="Comfort" aria-label="Comfort">
+          <span class="icon comfort"></span>
+        </button>
+        <button id="syncButton" class="icon-button" title="Sync" aria-label="Sync">
+          <span class="icon sync"></span>
+        </button>
+        <button id="modeButton" class="icon-button" title="Expand" aria-label="Expand">
+          <span class="icon expand"></span>
+        </button>
+        <button id="closeButton" class="icon-button close" title="Close" aria-label="Close">
+          <span class="icon close-mark"></span>
+        </button>
+      </nav>
+
+      <section id="devicePanel" class="device-panel" aria-live="polite">
+        <div class="meter-row">
+          <span>Full</span>
+          <div class="mini-meter"><div id="fullnessMeter"></div></div>
+          <strong id="fullnessValue">0</strong>
+        </div>
+        <div class="meter-row">
+          <span>Energy</span>
+          <div class="mini-meter"><div id="energyMeter"></div></div>
+          <strong id="energyValue">0</strong>
+        </div>
+        <div class="meter-row">
+          <span>Mood</span>
+          <div class="mini-meter"><div id="moodMeter"></div></div>
+          <strong id="moodValue">0</strong>
+        </div>
+        <div class="meter-row">
+          <span>Stress</span>
+          <div class="mini-meter danger"><div id="stressMeter"></div></div>
+          <strong id="stressValue">0</strong>
+        </div>
+        <div class="device-grid">
+          <div>
+            <span>Path</span>
+            <strong id="pathValue">Starter</strong>
+          </div>
+          <div>
+            <span>Care</span>
+            <strong id="careValue">0/0</strong>
+          </div>
+          <div>
+            <span>Focus</span>
+            <strong id="focusValue">Builder</strong>
+          </div>
+          <div>
+            <span>Work</span>
+            <strong id="workValue">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <div id="resizeGrip" class="resize-grip" title="Resize" aria-hidden="true"></div>
+    </main>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

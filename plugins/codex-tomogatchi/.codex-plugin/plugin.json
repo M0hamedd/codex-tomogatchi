@@ -1,0 +1,27 @@
+{
+  "name": "codex-tomogatchi",
+  "version": "0.1.0+codex.20260603205832",
+  "description": "A local Codex virtual pet that grows from privacy-safe Codex activity counters.",
+  "author": {
+    "name": "Codex Tomogatchi Contributors"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex Tomogatchi",
+    "shortDescription": "Grow a Codex pet from your coding sessions",
+    "longDescription": "Codex Tomogatchi records privacy-safe local activity counters, turns those counters into XP, care calls, stats, and evolution paths, and renders a live original virtual pet overlay.",
+    "developerName": "Codex Tomogatchi Contributors",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Show my Codex Tomogatchi status",
+      "Care for my Codex Tomogatchi",
+      "Check whether my Codex Tomogatchi can evolve"
+    ],
+    "brandColor": "#3B7C70"
+  }
+}

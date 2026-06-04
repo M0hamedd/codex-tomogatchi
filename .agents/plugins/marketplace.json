@@ -1,0 +1,20 @@
+{
+  "name": "codex-tomogatchi",
+  "interface": {
+    "displayName": "Codex Tomogatchi"
+  },
+  "plugins": [
+    {
+      "name": "codex-tomogatchi",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex-tomogatchi"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

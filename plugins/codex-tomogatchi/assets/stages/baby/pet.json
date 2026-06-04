@@ -1,0 +1,6 @@
+{
+  "description": "A tiny original ember-coded desktop pet.",
+  "displayName": "Sparkbit",
+  "id": "sparkbit",
+  "spritesheetPath": "spritesheet.webp"
+}

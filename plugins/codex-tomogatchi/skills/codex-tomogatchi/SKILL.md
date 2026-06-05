@@ -90,6 +90,8 @@ Use `pets import <path> --select` to install and activate a pack. Use `pets vali
 
 Branching packs can define `forms` with per-form `assetPath`, optional `evolvesFrom`, and requirements. The bundled example at `examples/pet-packs/digimon-world-1-agumon` uses Digimon World 1-style requirement groups: stats, care mistakes, weight, and bonus, with 3 of 4 groups required by default. Its requirement data is source-backed; its sprites are local concept atlases, not ripped game assets.
 
+The larger bundled example at `examples/pet-packs/tuxemon-open-61` contains 61 forms and 24 real three-stage paths from Tuxemon YAML evolution data. Tuxemon source data is GPL-3.0-or-later; its included sprites are local concept atlases, not copied Tuxemon art.
+
 ## XP Rules
 
 - User prompts/completed turns add XP according to `xp.pace`.

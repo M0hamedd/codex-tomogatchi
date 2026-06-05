@@ -8,6 +8,7 @@ release/
 Thumbs.db
 *.log
 *.tmp
+.tmp/
 .codex/tomogatchi-overlay*.log
 .codex/app-asar-extract/
 .codex/app-server-schema/

@@ -149,6 +149,16 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
 Branching packs can define multiple `forms` per stage. The DW1 example stores the original-style stats, care mistake, weight, and bonus groups in `pack.json`, then uses the local Codex Tomogatchi raising stats to choose the matching form.
 `pets hatch <baby-form-id>` resets to baby from the current session-log position by default, so old Codex logs do not immediately evolve a new starter.
 
+Use the larger open-source Tuxemon example:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\tuxemon-open-61 --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch waysprite
+```
+
+`Tuxemon Open 61` is a DW1-sized pack with 61 forms and 24 real three-stage paths from Tuxemon YAML evolution data. Tuxemon source data is GPL-3.0-or-later. The included sprites are generated concept atlases, not copied Tuxemon art.
+
 ## Optional Windows Autostart
 
 Install a no-admin Scheduled Task that starts Codex Tomogatchi when you log in:

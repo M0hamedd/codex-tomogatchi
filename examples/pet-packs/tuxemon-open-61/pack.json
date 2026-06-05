@@ -1,0 +1,2183 @@
+{
+  "author": "Codex Tomogatchi Contributors",
+  "description": "A DW1-sized, source-backed branching pack with 61 forms and 24 real three-stage paths from the open-source Tuxemon evolution graph. Sprites are local concept atlases, not copied Tuxemon art.",
+  "forms": {
+    "adult": [
+      {
+        "assetPath": "forms/adult/agnigon",
+        "default": true,
+        "evolvesFrom": [
+          "agnidon"
+        ],
+        "id": "agnigon",
+        "name": "Agnigon",
+        "path": "tuxemon-agnigon",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 36,
+              "conditions": {
+                "at_level": 36
+              },
+              "from": "agnidon",
+              "sourceFile": "mods/tuxemon/db/monster/agnidon.yaml",
+              "to": "agnigon"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 600,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "agnigon",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 15,
+          "types": [
+            "fire",
+            "shadow"
+          ],
+          "weight": 2000
+        }
+      },
+      {
+        "assetPath": "forms/adult/velocitile",
+        "default": true,
+        "evolvesFrom": [
+          "gectile"
+        ],
+        "id": "velocitile",
+        "name": "Velocitile",
+        "path": "tuxemon-velocitile",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 36,
+              "conditions": {
+                "at_level": 36
+              },
+              "from": "gectile",
+              "sourceFile": "mods/tuxemon/db/monster/gectile.yaml",
+              "to": "velocitile"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 150,
+          "shape": "humanoid",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "velocitile",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 67,
+          "types": [
+            "wood"
+          ],
+          "weight": 75
+        }
+      },
+      {
+        "assetPath": "forms/adult/banvengeance",
+        "default": true,
+        "evolvesFrom": [
+          "bansaken"
+        ],
+        "id": "banvengeance",
+        "name": "Banvengeance",
+        "path": "tuxemon-banvengeance",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 36,
+              "conditions": {
+                "at_level": 36
+              },
+              "from": "bansaken",
+              "sourceFile": "mods/tuxemon/db/monster/bansaken.yaml",
+              "to": "banvengeance"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 800,
+          "shape": "brute",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "banvengeance",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 357,
+          "types": [
+            "wood",
+            "shadow"
+          ],
+          "weight": 354
+        }
+      },
+      {
+        "assetPath": "forms/adult/bewhich",
+        "default": true,
+        "evolvesFrom": [
+          "brumi"
+        ],
+        "id": "bewhich",
+        "name": "Bewhich",
+        "path": "tuxemon-bewhich",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 30,
+              "conditions": {
+                "at_level": 30,
+                "variables": [
+                  {
+                    "key": "daytime",
+                    "value": "false"
+                  }
+                ]
+              },
+              "from": "brumi",
+              "sourceFile": "mods/tuxemon/db/monster/brumi.yaml",
+              "to": "bewhich"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 152,
+          "shape": "humanoid",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "bewhich",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 342,
+          "types": [
+            "shadow",
+            "cosmic"
+          ],
+          "weight": 0.1
+        }
+      },
+      {
+        "assetPath": "forms/adult/cardinale",
+        "default": true,
+        "evolvesFrom": [
+          "cardiwing"
+        ],
+        "id": "cardinale",
+        "name": "Cardinale",
+        "path": "tuxemon-cardinale",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 36,
+              "conditions": {
+                "at_level": 36
+              },
+              "from": "cardiwing",
+              "sourceFile": "mods/tuxemon/db/monster/cardiwing.yaml",
+              "to": "cardinale"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 60,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "cardinale",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 64,
+          "types": [
+            "fire",
+            "sky"
+          ],
+          "weight": 8
+        }
+      },
+      {
+        "assetPath": "forms/adult/weavifly",
+        "default": true,
+        "evolvesFrom": [
+          "puparmor"
+        ],
+        "id": "weavifly",
+        "name": "Weavifly",
+        "path": "tuxemon-weavifly",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 12,
+              "conditions": {
+                "at_level": 12
+              },
+              "from": "puparmor",
+              "sourceFile": "mods/tuxemon/db/monster/puparmor.yaml",
+              "to": "weavifly"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 52,
+          "shape": "grub",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "weavifly",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 35,
+          "types": [
+            "metal",
+            "sky"
+          ],
+          "weight": 17
+        }
+      },
+      {
+        "assetPath": "forms/adult/dragarbor",
+        "default": true,
+        "evolvesFrom": [
+          "sapragon"
+        ],
+        "id": "dragarbor",
+        "name": "Dragarbor",
+        "path": "tuxemon-dragarbor",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 54,
+              "conditions": {
+                "at_level": 54
+              },
+              "from": "sapragon",
+              "sourceFile": "mods/tuxemon/db/monster/sapragon.yaml",
+              "to": "dragarbor"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 397,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "dragarbor",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 142,
+          "types": [
+            "wood",
+            "cosmic"
+          ],
+          "weight": 336
+        }
+      },
+      {
+        "assetPath": "forms/adult/deviraptor",
+        "default": true,
+        "evolvesFrom": [
+          "devidra"
+        ],
+        "id": "deviraptor",
+        "name": "Deviraptor",
+        "path": "tuxemon-deviraptor",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 32,
+              "conditions": {
+                "at_level": 32
+              },
+              "from": "devidra",
+              "sourceFile": "mods/tuxemon/db/monster/devidra.yaml",
+              "to": "deviraptor"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 183,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "deviraptor",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 294,
+          "types": [
+            "earth",
+            "fire"
+          ],
+          "weight": 295
+        }
+      },
+      {
+        "assetPath": "forms/adult/tobishimi",
+        "default": true,
+        "evolvesFrom": [
+          "tsushimi"
+        ],
+        "id": "tobishimi",
+        "name": "Tobishimi",
+        "path": "tuxemon-tobishimi",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 36,
+              "conditions": {
+                "at_level": 36
+              },
+              "from": "tsushimi",
+              "sourceFile": "mods/tuxemon/db/monster/tsushimi.yaml",
+              "to": "tobishimi"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 180,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "tobishimi",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 187,
+          "types": [
+            "wood"
+          ],
+          "weight": 169
+        }
+      },
+      {
+        "assetPath": "forms/adult/elostorm",
+        "default": true,
+        "evolvesFrom": [
+          "elowind"
+        ],
+        "id": "elostorm",
+        "name": "Elostorm",
+        "path": "tuxemon-elostorm",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 42,
+              "conditions": {
+                "at_level": 42
+              },
+              "from": "elowind",
+              "sourceFile": "mods/tuxemon/db/monster/elowind.yaml",
+              "to": "elostorm"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 144,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "elostorm",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 41,
+          "types": [
+            "normal",
+            "sky"
+          ],
+          "weight": 25
+        }
+      },
+      {
+        "assetPath": "forms/adult/gryfix",
+        "default": true,
+        "evolvesFrom": [
+          "corvix"
+        ],
+        "id": "gryfix",
+        "name": "Gryfix",
+        "path": "tuxemon-gryfix",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 36,
+              "conditions": {
+                "at_level": 36
+              },
+              "from": "corvix",
+              "sourceFile": "mods/tuxemon/db/monster/corvix.yaml",
+              "to": "gryfix"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 180,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "gryfix",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 158,
+          "types": [
+            "sky"
+          ],
+          "weight": 31
+        }
+      },
+      {
+        "assetPath": "forms/adult/spectera",
+        "default": true,
+        "evolvesFrom": [
+          "megafruitera"
+        ],
+        "id": "spectera",
+        "name": "Spectera",
+        "path": "tuxemon-spectera",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 36,
+              "conditions": {
+                "at_level": 36
+              },
+              "from": "megafruitera",
+              "sourceFile": "mods/tuxemon/db/monster/megafruitera.yaml",
+              "to": "spectera"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 140,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "spectera",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 171,
+          "types": [
+            "wood",
+            "sky"
+          ],
+          "weight": 20
+        }
+      },
+      {
+        "assetPath": "forms/adult/golnagi",
+        "default": true,
+        "evolvesFrom": [
+          "gupphire"
+        ],
+        "id": "golnagi",
+        "name": "Golnagi",
+        "path": "tuxemon-golnagi",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 38,
+              "conditions": {
+                "at_level": 38
+              },
+              "from": "gupphire",
+              "sourceFile": "mods/tuxemon/db/monster/gupphire.yaml",
+              "to": "golnagi"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 130,
+          "shape": "piscine",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "golnagi",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 393,
+          "types": [
+            "water",
+            "fire"
+          ],
+          "weight": 16
+        }
+      },
+      {
+        "assetPath": "forms/adult/hoarseshoo",
+        "default": true,
+        "evolvesFrom": [
+          "equill"
+        ],
+        "id": "hoarseshoo",
+        "name": "Hoarseshoo",
+        "path": "tuxemon-hoarseshoo",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 55,
+              "conditions": {
+                "at_level": 55
+              },
+              "from": "equill",
+              "sourceFile": "mods/tuxemon/db/monster/equill.yaml",
+              "to": "hoarseshoo"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 300,
+          "shape": "blob",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "hoarseshoo",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 311,
+          "types": [
+            "venom",
+            "shadow"
+          ],
+          "weight": 1300
+        }
+      },
+      {
+        "assetPath": "forms/adult/jemuar",
+        "default": true,
+        "evolvesFrom": [
+          "rockat"
+        ],
+        "id": "jemuar",
+        "name": "Jemuar",
+        "path": "tuxemon-jemuar",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 36,
+              "conditions": {
+                "at_level": 36
+              },
+              "from": "rockat",
+              "sourceFile": "mods/tuxemon/db/monster/rockat.yaml",
+              "to": "jemuar"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 160,
+          "shape": "hunter",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "jemuar",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 3,
+          "types": [
+            "earth",
+            "cosmic"
+          ],
+          "weight": 150
+        }
+      },
+      {
+        "assetPath": "forms/adult/seraphice",
+        "default": true,
+        "evolvesFrom": [
+          "angesnow"
+        ],
+        "id": "seraphice",
+        "name": "Seraphice",
+        "path": "tuxemon-seraphice",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 32,
+              "conditions": {
+                "at_level": 32
+              },
+              "from": "angesnow",
+              "sourceFile": "mods/tuxemon/db/monster/angesnow.yaml",
+              "to": "seraphice"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 180,
+          "shape": "humanoid",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "seraphice",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 266,
+          "types": [
+            "frost",
+            "cosmic"
+          ],
+          "weight": 85
+        }
+      },
+      {
+        "assetPath": "forms/adult/lucifice",
+        "default": true,
+        "evolvesFrom": [
+          "demosnow"
+        ],
+        "id": "lucifice",
+        "name": "Lucifice",
+        "path": "tuxemon-lucifice",
+        "reason": "Tuxemon stage2 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 32,
+              "conditions": {
+                "at_level": 32
+              },
+              "from": "demosnow",
+              "sourceFile": "mods/tuxemon/db/monster/demosnow.yaml",
+              "to": "lucifice"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 180,
+          "shape": "sprite",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "lucifice",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 265,
+          "types": [
+            "frost",
+            "shadow"
+          ],
+          "weight": 90
+        }
+      },
+      {
+        "assetPath": "forms/adult/bugnin",
+        "default": true,
+        "evolvesFrom": [
+          "katacoon"
+        ],
+        "id": "bugnin",
+        "name": "Bugnin",
+        "path": "tuxemon-bugnin",
+        "reason": "Tuxemon stage2 source form",
+        "requirements": {
+          "maxCareMistakes": 1,
+          "minCareTotal": 2,
+          "reason": "steady care branch",
+          "sourceBranch": "katacoon option 1"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 12,
+              "conditions": {
+                "at_level": 12,
+                "stats": {
+                  "comparison": "greater_than",
+                  "stat_type": "dodge",
+                  "target_stat": "speed"
+                }
+              },
+              "from": "katacoon",
+              "sourceFile": "mods/tuxemon/db/monster/katacoon.yaml",
+              "to": "bugnin"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 150,
+          "shape": "brute",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "bugnin",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 58,
+          "types": [
+            "metal",
+            "venom"
+          ],
+          "weight": 52
+        }
+      },
+      {
+        "assetPath": "forms/adult/sumchon",
+        "evolvesFrom": [
+          "katacoon"
+        ],
+        "id": "sumchon",
+        "name": "Sumchon",
+        "path": "tuxemon-sumchon",
+        "reason": "Tuxemon stage2 source form",
+        "requirements": {
+          "dominantFocus": "explorer",
+          "minDominantFocus": 2,
+          "reason": "explorer focus branch",
+          "sourceBranch": "katacoon option 2"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 12,
+              "conditions": {
+                "at_level": 12,
+                "stats": {
+                  "comparison": "greater_than",
+                  "stat_type": "speed",
+                  "target_stat": "dodge"
+                }
+              },
+              "from": "katacoon",
+              "sourceFile": "mods/tuxemon/db/monster/katacoon.yaml",
+              "to": "sumchon"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 150,
+          "shape": "brute",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "sumchon",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 59,
+          "types": [
+            "metal",
+            "heroic"
+          ],
+          "weight": 125
+        }
+      },
+      {
+        "assetPath": "forms/adult/gladiatorbug",
+        "evolvesFrom": [
+          "katacoon"
+        ],
+        "id": "gladiatorbug",
+        "name": "Gladiatorbug",
+        "path": "tuxemon-gladiatorbug",
+        "reason": "Tuxemon stage2 source form",
+        "requirements": {
+          "minMistakesByKind": {
+            "stress": 1
+          },
+          "reason": "stress mistake branch",
+          "sourceBranch": "katacoon option 3"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 12,
+              "conditions": {
+                "at_level": 12,
+                "stats": {
+                  "comparison": "equals",
+                  "stat_type": "speed",
+                  "target_stat": "dodge"
+                }
+              },
+              "from": "katacoon",
+              "sourceFile": "mods/tuxemon/db/monster/katacoon.yaml",
+              "to": "gladiatorbug"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 178,
+          "shape": "humanoid",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "gladiatorbug",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 60,
+          "types": [
+            "metal",
+            "heroic"
+          ],
+          "weight": 78
+        }
+      },
+      {
+        "assetPath": "forms/adult/mk01_delta",
+        "default": true,
+        "evolvesFrom": [
+          "mk01_alpha",
+          "mk01_beta"
+        ],
+        "id": "mk01_delta",
+        "name": "MK01 Delta",
+        "path": "tuxemon-mk01_delta",
+        "reason": "Tuxemon stage2 source form",
+        "requirements": {
+          "any": [
+            {
+              "maxCareMistakes": 1,
+              "minCareTotal": 2,
+              "reason": "steady care branch"
+            },
+            {
+              "maxCareMistakes": 1,
+              "minCareTotal": 2,
+              "reason": "steady care branch"
+            }
+          ],
+          "reason": "steady care branch or steady care branch",
+          "sourceBranch": "mk01_alpha option 1, mk01_beta option 1"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 32,
+              "conditions": {
+                "at_level": 32
+              },
+              "from": "mk01_alpha",
+              "sourceFile": "mods/tuxemon/db/monster/mk01_alpha.yaml",
+              "to": "mk01_delta"
+            },
+            {
+              "atLevel": 32,
+              "conditions": {
+                "at_level": 32
+              },
+              "from": "mk01_beta",
+              "sourceFile": "mods/tuxemon/db/monster/mk01_beta.yaml",
+              "to": "mk01_delta"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 0.1,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "mk01_delta",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 0,
+          "types": [
+            "metal"
+          ],
+          "weight": 100
+        }
+      },
+      {
+        "assetPath": "forms/adult/mk01_gamma",
+        "evolvesFrom": [
+          "mk01_alpha"
+        ],
+        "id": "mk01_gamma",
+        "name": "MK01 Gamma",
+        "path": "tuxemon-mk01_gamma",
+        "reason": "Tuxemon stage2 source form",
+        "requirements": {
+          "dominantFocus": "explorer",
+          "minDominantFocus": 2,
+          "reason": "explorer focus branch",
+          "sourceBranch": "mk01_alpha option 2"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 32,
+              "conditions": {
+                "at_level": 32
+              },
+              "from": "mk01_alpha",
+              "sourceFile": "mods/tuxemon/db/monster/mk01_alpha.yaml",
+              "to": "mk01_gamma"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 0.1,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "mk01_gamma",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 0,
+          "types": [
+            "metal"
+          ],
+          "weight": 100
+        }
+      },
+      {
+        "assetPath": "forms/adult/mk01_omega",
+        "evolvesFrom": [
+          "mk01_beta"
+        ],
+        "id": "mk01_omega",
+        "name": "MK01 Omega",
+        "path": "tuxemon-mk01_omega",
+        "reason": "Tuxemon stage2 source form",
+        "requirements": {
+          "dominantFocus": "explorer",
+          "minDominantFocus": 2,
+          "reason": "explorer focus branch",
+          "sourceBranch": "mk01_beta option 2"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 32,
+              "conditions": {
+                "at_level": 32
+              },
+              "from": "mk01_beta",
+              "sourceFile": "mods/tuxemon/db/monster/mk01_beta.yaml",
+              "to": "mk01_omega"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 0.1,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "mk01_omega",
+          "sourceStage": "stage2",
+          "stage": "adult",
+          "txmnId": 0,
+          "types": [
+            "metal"
+          ],
+          "weight": 100
+        }
+      }
+    ],
+    "baby": [
+      {
+        "assetPath": "forms/baby/agnite",
+        "default": true,
+        "id": "agnite",
+        "name": "Agnite",
+        "path": "tuxemon-agnite",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 80,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "agnite",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 13,
+          "types": [
+            "fire"
+          ],
+          "weight": 24
+        }
+      },
+      {
+        "assetPath": "forms/baby/anoleaf",
+        "id": "anoleaf",
+        "name": "Anoleaf",
+        "path": "tuxemon-anoleaf",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 33,
+          "shape": "varmint",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "anoleaf",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 65,
+          "types": [
+            "wood"
+          ],
+          "weight": 2
+        }
+      },
+      {
+        "assetPath": "forms/baby/banling",
+        "id": "banling",
+        "name": "Banling",
+        "path": "tuxemon-banling",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 120,
+          "shape": "brute",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "banling",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 355,
+          "types": [
+            "wood"
+          ],
+          "weight": 180
+        }
+      },
+      {
+        "assetPath": "forms/baby/cackleen",
+        "id": "cackleen",
+        "name": "Cackleen",
+        "path": "tuxemon-cackleen",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 91,
+          "shape": "sprite",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "cackleen",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 340,
+          "types": [
+            "shadow",
+            "cosmic"
+          ],
+          "weight": 40
+        }
+      },
+      {
+        "assetPath": "forms/baby/cardiling",
+        "id": "cardiling",
+        "name": "Cardiling",
+        "path": "tuxemon-cardiling",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 30,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "cardiling",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 62,
+          "types": [
+            "fire",
+            "sky"
+          ],
+          "weight": 2
+        }
+      },
+      {
+        "assetPath": "forms/baby/cataspike",
+        "id": "cataspike",
+        "name": "Cataspike",
+        "path": "tuxemon-cataspike",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 12,
+          "shape": "grub",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "cataspike",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 33,
+          "types": [
+            "metal",
+            "venom"
+          ],
+          "weight": 1
+        }
+      },
+      {
+        "assetPath": "forms/baby/chloragon",
+        "id": "chloragon",
+        "name": "Chloragon",
+        "path": "tuxemon-chloragon",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 102,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "chloragon",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 140,
+          "types": [
+            "wood"
+          ],
+          "weight": 85
+        }
+      },
+      {
+        "assetPath": "forms/baby/devidin",
+        "id": "devidin",
+        "name": "Devidin",
+        "path": "tuxemon-devidin",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 73,
+          "shape": "landrace",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "devidin",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 292,
+          "types": [
+            "earth",
+            "fire"
+          ],
+          "weight": 36
+        }
+      },
+      {
+        "assetPath": "forms/baby/drashimi",
+        "id": "drashimi",
+        "name": "Drashimi",
+        "path": "tuxemon-drashimi",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 38,
+          "shape": "polliwog",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "drashimi",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 185,
+          "types": [
+            "wood"
+          ],
+          "weight": 12
+        }
+      },
+      {
+        "assetPath": "forms/baby/elofly",
+        "id": "elofly",
+        "name": "Elofly",
+        "path": "tuxemon-elofly",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 75,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "elofly",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 39,
+          "types": [
+            "normal",
+            "sky"
+          ],
+          "weight": 3
+        }
+      },
+      {
+        "assetPath": "forms/baby/flacono",
+        "id": "flacono",
+        "name": "Flacono",
+        "path": "tuxemon-flacono",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 70,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "flacono",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 156,
+          "types": [
+            "sky"
+          ],
+          "weight": 6
+        }
+      },
+      {
+        "assetPath": "forms/baby/fruitera",
+        "id": "fruitera",
+        "name": "Fruitera",
+        "path": "tuxemon-fruitera",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 30,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "fruitera",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 169,
+          "types": [
+            "wood"
+          ],
+          "weight": 2
+        }
+      },
+      {
+        "assetPath": "forms/baby/gupphish",
+        "id": "gupphish",
+        "name": "Gupphish",
+        "path": "tuxemon-gupphish",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 40,
+          "shape": "piscine",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "gupphish",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 391,
+          "types": [
+            "water",
+            "fire"
+          ],
+          "weight": 2
+        }
+      },
+      {
+        "assetPath": "forms/baby/hoarse",
+        "id": "hoarse",
+        "name": "Hoarse",
+        "path": "tuxemon-hoarse",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 130,
+          "shape": "landrace",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "hoarse",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 309,
+          "types": [
+            "shadow",
+            "normal"
+          ],
+          "weight": 130
+        }
+      },
+      {
+        "assetPath": "forms/baby/rockitten",
+        "id": "rockitten",
+        "name": "Rockitten",
+        "path": "tuxemon-rockitten",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 55,
+          "shape": "hunter",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "rockitten",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 1,
+          "types": [
+            "earth"
+          ],
+          "weight": 9
+        }
+      },
+      {
+        "assetPath": "forms/baby/waysprite",
+        "id": "waysprite",
+        "name": "Waysprite",
+        "path": "tuxemon-waysprite",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 15,
+          "shape": "sprite",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "waysprite",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 262,
+          "types": [
+            "frost"
+          ],
+          "weight": 1
+        }
+      },
+      {
+        "assetPath": "forms/baby/katapill",
+        "id": "katapill",
+        "name": "Katapill",
+        "path": "tuxemon-katapill",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 32,
+          "shape": "grub",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "katapill",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 56,
+          "types": [
+            "metal",
+            "venom"
+          ],
+          "weight": 3
+        }
+      },
+      {
+        "assetPath": "forms/baby/mk01_proto",
+        "id": "mk01_proto",
+        "name": "MK01 Proto",
+        "path": "tuxemon-mk01_proto",
+        "reason": "Tuxemon basic source form",
+        "sourceRequirements": {
+          "evolutions": [],
+          "game": "Tuxemon",
+          "height": 0.1,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "mk01_proto",
+          "sourceStage": "basic",
+          "stage": "baby",
+          "txmnId": 0,
+          "types": [
+            "metal"
+          ],
+          "weight": 100
+        }
+      }
+    ],
+    "teen": [
+      {
+        "assetPath": "forms/teen/agnidon",
+        "default": true,
+        "evolvesFrom": [
+          "agnite"
+        ],
+        "id": "agnidon",
+        "name": "Agnidon",
+        "path": "tuxemon-agnidon",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 24,
+              "conditions": {
+                "at_level": 24
+              },
+              "from": "agnite",
+              "sourceFile": "mods/tuxemon/db/monster/agnite.yaml",
+              "to": "agnidon"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 320,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "agnidon",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 14,
+          "types": [
+            "fire"
+          ],
+          "weight": 230
+        }
+      },
+      {
+        "assetPath": "forms/teen/gectile",
+        "default": true,
+        "evolvesFrom": [
+          "anoleaf"
+        ],
+        "id": "gectile",
+        "name": "Gectile",
+        "path": "tuxemon-gectile",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 18,
+              "conditions": {
+                "at_level": 18
+              },
+              "from": "anoleaf",
+              "sourceFile": "mods/tuxemon/db/monster/anoleaf.yaml",
+              "to": "gectile"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 54,
+          "shape": "humanoid",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "gectile",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 66,
+          "types": [
+            "wood"
+          ],
+          "weight": 7
+        }
+      },
+      {
+        "assetPath": "forms/teen/bansaken",
+        "default": true,
+        "evolvesFrom": [
+          "banling"
+        ],
+        "id": "bansaken",
+        "name": "Bansaken",
+        "path": "tuxemon-bansaken",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 18,
+              "conditions": {
+                "at_level": 18
+              },
+              "from": "banling",
+              "sourceFile": "mods/tuxemon/db/monster/banling.yaml",
+              "to": "bansaken"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 430,
+          "shape": "brute",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "bansaken",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 356,
+          "types": [
+            "wood",
+            "shadow"
+          ],
+          "weight": 267
+        }
+      },
+      {
+        "assetPath": "forms/teen/brumi",
+        "default": true,
+        "evolvesFrom": [
+          "cackleen"
+        ],
+        "id": "brumi",
+        "name": "Brumi",
+        "path": "tuxemon-brumi",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 16,
+              "conditions": {
+                "at_level": 16,
+                "variables": [
+                  {
+                    "key": "daytime",
+                    "value": "false"
+                  }
+                ]
+              },
+              "from": "cackleen",
+              "sourceFile": "mods/tuxemon/db/monster/cackleen.yaml",
+              "to": "brumi"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 123,
+          "shape": "sprite",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "brumi",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 341,
+          "types": [
+            "shadow",
+            "cosmic"
+          ],
+          "weight": 0.1
+        }
+      },
+      {
+        "assetPath": "forms/teen/cardiwing",
+        "default": true,
+        "evolvesFrom": [
+          "cardiling"
+        ],
+        "id": "cardiwing",
+        "name": "Cardiwing",
+        "path": "tuxemon-cardiwing",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 18,
+              "conditions": {
+                "at_level": 18
+              },
+              "from": "cardiling",
+              "sourceFile": "mods/tuxemon/db/monster/cardiling.yaml",
+              "to": "cardiwing"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 45,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "cardiwing",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 63,
+          "types": [
+            "fire",
+            "sky"
+          ],
+          "weight": 5
+        }
+      },
+      {
+        "assetPath": "forms/teen/puparmor",
+        "default": true,
+        "evolvesFrom": [
+          "cataspike"
+        ],
+        "id": "puparmor",
+        "name": "Puparmor",
+        "path": "tuxemon-puparmor",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 9,
+              "conditions": {
+                "at_level": 9
+              },
+              "from": "cataspike",
+              "sourceFile": "mods/tuxemon/db/monster/cataspike.yaml",
+              "to": "puparmor"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 35,
+          "shape": "blob",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "puparmor",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 34,
+          "types": [
+            "metal",
+            "venom"
+          ],
+          "weight": 8.5
+        }
+      },
+      {
+        "assetPath": "forms/teen/sapragon",
+        "default": true,
+        "evolvesFrom": [
+          "chloragon"
+        ],
+        "id": "sapragon",
+        "name": "Sapragon",
+        "path": "tuxemon-sapragon",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 32,
+              "conditions": {
+                "at_level": 32
+              },
+              "from": "chloragon",
+              "sourceFile": "mods/tuxemon/db/monster/chloragon.yaml",
+              "to": "sapragon"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 122,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "sapragon",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 141,
+          "types": [
+            "wood"
+          ],
+          "weight": 115
+        }
+      },
+      {
+        "assetPath": "forms/teen/devidra",
+        "default": true,
+        "evolvesFrom": [
+          "devidin"
+        ],
+        "id": "devidra",
+        "name": "Devidra",
+        "path": "tuxemon-devidra",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 18,
+              "conditions": {
+                "at_level": 18
+              },
+              "from": "devidin",
+              "sourceFile": "mods/tuxemon/db/monster/devidin.yaml",
+              "to": "devidra"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 152,
+          "shape": "landrace",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "devidra",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 293,
+          "types": [
+            "earth",
+            "fire"
+          ],
+          "weight": 113
+        }
+      },
+      {
+        "assetPath": "forms/teen/tsushimi",
+        "default": true,
+        "evolvesFrom": [
+          "drashimi"
+        ],
+        "id": "tsushimi",
+        "name": "Tsushimi",
+        "path": "tuxemon-tsushimi",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 18,
+              "conditions": {
+                "at_level": 18
+              },
+              "from": "drashimi",
+              "sourceFile": "mods/tuxemon/db/monster/drashimi.yaml",
+              "to": "tsushimi"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 136,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "tsushimi",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 186,
+          "types": [
+            "wood"
+          ],
+          "weight": 85
+        }
+      },
+      {
+        "assetPath": "forms/teen/elowind",
+        "default": true,
+        "evolvesFrom": [
+          "elofly"
+        ],
+        "id": "elowind",
+        "name": "Elowind",
+        "path": "tuxemon-elowind",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 18,
+              "conditions": {
+                "at_level": 18
+              },
+              "from": "elofly",
+              "sourceFile": "mods/tuxemon/db/monster/elofly.yaml",
+              "to": "elowind"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 115,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "elowind",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 40,
+          "types": [
+            "sky",
+            "normal"
+          ],
+          "weight": 15
+        }
+      },
+      {
+        "assetPath": "forms/teen/corvix",
+        "default": true,
+        "evolvesFrom": [
+          "flacono"
+        ],
+        "id": "corvix",
+        "name": "Corvix",
+        "path": "tuxemon-corvix",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 18,
+              "conditions": {
+                "at_level": 18
+              },
+              "from": "flacono",
+              "sourceFile": "mods/tuxemon/db/monster/flacono.yaml",
+              "to": "corvix"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 55,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "corvix",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 157,
+          "types": [
+            "sky"
+          ],
+          "weight": 4
+        }
+      },
+      {
+        "assetPath": "forms/teen/megafruitera",
+        "default": true,
+        "evolvesFrom": [
+          "fruitera"
+        ],
+        "id": "megafruitera",
+        "name": "Megafruitera",
+        "path": "tuxemon-megafruitera",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 18,
+              "conditions": {
+                "at_level": 18
+              },
+              "from": "fruitera",
+              "sourceFile": "mods/tuxemon/db/monster/fruitera.yaml",
+              "to": "megafruitera"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 60,
+          "shape": "flier",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "megafruitera",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 170,
+          "types": [
+            "wood",
+            "sky"
+          ],
+          "weight": 5
+        }
+      },
+      {
+        "assetPath": "forms/teen/gupphire",
+        "default": true,
+        "evolvesFrom": [
+          "gupphish"
+        ],
+        "id": "gupphire",
+        "name": "Gupphire",
+        "path": "tuxemon-gupphire",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 20,
+              "conditions": {
+                "at_level": 20
+              },
+              "from": "gupphish",
+              "sourceFile": "mods/tuxemon/db/monster/gupphish.yaml",
+              "to": "gupphire"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 80,
+          "shape": "piscine",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "gupphire",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 392,
+          "types": [
+            "water",
+            "fire"
+          ],
+          "weight": 7
+        }
+      },
+      {
+        "assetPath": "forms/teen/equill",
+        "default": true,
+        "evolvesFrom": [
+          "hoarse"
+        ],
+        "id": "equill",
+        "name": "Equill",
+        "path": "tuxemon-equill",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 30,
+              "conditions": {
+                "at_level": 30
+              },
+              "from": "hoarse",
+              "sourceFile": "mods/tuxemon/db/monster/hoarse.yaml",
+              "to": "equill"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 160,
+          "shape": "landrace",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "equill",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 310,
+          "types": [
+            "shadow",
+            "normal"
+          ],
+          "weight": 500
+        }
+      },
+      {
+        "assetPath": "forms/teen/rockat",
+        "default": true,
+        "evolvesFrom": [
+          "rockitten"
+        ],
+        "id": "rockat",
+        "name": "Rockat",
+        "path": "tuxemon-rockat",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 24,
+              "conditions": {
+                "at_level": 24
+              },
+              "from": "rockitten",
+              "sourceFile": "mods/tuxemon/db/monster/rockitten.yaml",
+              "to": "rockat"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 120,
+          "shape": "hunter",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "rockat",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 2,
+          "types": [
+            "earth"
+          ],
+          "weight": 60
+        }
+      },
+      {
+        "assetPath": "forms/teen/angesnow",
+        "default": true,
+        "evolvesFrom": [
+          "waysprite"
+        ],
+        "id": "angesnow",
+        "name": "Angesnow",
+        "path": "tuxemon-angesnow",
+        "reason": "Tuxemon stage1 source form",
+        "requirements": {
+          "maxCareMistakes": 1,
+          "minCareTotal": 2,
+          "reason": "steady care branch",
+          "sourceBranch": "waysprite option 1"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 14,
+              "conditions": {
+                "at_level": 14,
+                "variables": [
+                  {
+                    "key": "daytime",
+                    "value": "true"
+                  }
+                ]
+              },
+              "from": "waysprite",
+              "sourceFile": "mods/tuxemon/db/monster/waysprite.yaml",
+              "to": "angesnow"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 120,
+          "shape": "humanoid",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "angesnow",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 263,
+          "types": [
+            "frost",
+            "cosmic"
+          ],
+          "weight": 30
+        }
+      },
+      {
+        "assetPath": "forms/teen/demosnow",
+        "evolvesFrom": [
+          "waysprite"
+        ],
+        "id": "demosnow",
+        "name": "Demosnow",
+        "path": "tuxemon-demosnow",
+        "reason": "Tuxemon stage1 source form",
+        "requirements": {
+          "dominantFocus": "explorer",
+          "minDominantFocus": 2,
+          "reason": "explorer focus branch",
+          "sourceBranch": "waysprite option 2"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 14,
+              "conditions": {
+                "at_level": 14,
+                "variables": [
+                  {
+                    "key": "daytime",
+                    "value": "false"
+                  }
+                ]
+              },
+              "from": "waysprite",
+              "sourceFile": "mods/tuxemon/db/monster/waysprite.yaml",
+              "to": "demosnow"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 120,
+          "shape": "sprite",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "demosnow",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 264,
+          "types": [
+            "frost",
+            "shadow"
+          ],
+          "weight": 35
+        }
+      },
+      {
+        "assetPath": "forms/teen/katacoon",
+        "default": true,
+        "evolvesFrom": [
+          "katapill"
+        ],
+        "id": "katacoon",
+        "name": "Katacoon",
+        "path": "tuxemon-katacoon",
+        "reason": "Tuxemon stage1 source form",
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 9,
+              "conditions": {
+                "at_level": 9
+              },
+              "from": "katapill",
+              "sourceFile": "mods/tuxemon/db/monster/katapill.yaml",
+              "to": "katacoon"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 58,
+          "shape": "grub",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "katacoon",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 57,
+          "types": [
+            "metal",
+            "venom"
+          ],
+          "weight": 12
+        }
+      },
+      {
+        "assetPath": "forms/teen/mk01_alpha",
+        "default": true,
+        "evolvesFrom": [
+          "mk01_proto"
+        ],
+        "id": "mk01_alpha",
+        "name": "MK01 Alpha",
+        "path": "tuxemon-mk01_alpha",
+        "reason": "Tuxemon stage1 source form",
+        "requirements": {
+          "maxCareMistakes": 1,
+          "minCareTotal": 2,
+          "reason": "steady care branch",
+          "sourceBranch": "mk01_proto option 1"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 10,
+              "conditions": {
+                "at_level": 10
+              },
+              "from": "mk01_proto",
+              "sourceFile": "mods/tuxemon/db/monster/mk01_proto.yaml",
+              "to": "mk01_alpha"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 0.1,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "mk01_alpha",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 0,
+          "types": [
+            "metal"
+          ],
+          "weight": 100
+        }
+      },
+      {
+        "assetPath": "forms/teen/mk01_beta",
+        "evolvesFrom": [
+          "mk01_proto"
+        ],
+        "id": "mk01_beta",
+        "name": "MK01 Beta",
+        "path": "tuxemon-mk01_beta",
+        "reason": "Tuxemon stage1 source form",
+        "requirements": {
+          "dominantFocus": "explorer",
+          "minDominantFocus": 2,
+          "reason": "explorer focus branch",
+          "sourceBranch": "mk01_proto option 2"
+        },
+        "sourceRequirements": {
+          "evolutions": [
+            {
+              "atLevel": 10,
+              "conditions": {
+                "at_level": 10
+              },
+              "from": "mk01_proto",
+              "sourceFile": "mods/tuxemon/db/monster/mk01_proto.yaml",
+              "to": "mk01_beta"
+            }
+          ],
+          "game": "Tuxemon",
+          "height": 0.1,
+          "shape": "dragon",
+          "source": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+          "sourceLicense": "GPL-3.0-or-later for Tuxemon source data; see Tuxemon LICENSE",
+          "sourceSlug": "mk01_beta",
+          "sourceStage": "stage1",
+          "stage": "teen",
+          "txmnId": 0,
+          "types": [
+            "metal"
+          ],
+          "weight": 100
+        }
+      }
+    ]
+  },
+  "id": "tuxemon-open-61",
+  "name": "Tuxemon Open 61",
+  "schemaVersion": 1,
+  "source": {
+    "fullThreeStageFormsAvailable": 128,
+    "fullThreeStagePathsAvailable": 47,
+    "license": "GPL-3.0-or-later for source data in the Tuxemon repository",
+    "monsterData": "https://github.com/Tuxemon/Tuxemon/tree/development/mods/tuxemon/db/monster",
+    "name": "Tuxemon",
+    "notes": "Tuxemon currently provides 47 real three-stage paths across 128 unique basic/stage1/stage2 monsters in the checked source. This pack chooses 61 unique forms to match the commonly cited Digimon World 1 playable count.",
+    "selectedForms": 61,
+    "selectedThreeStagePaths": 24,
+    "url": "https://github.com/Tuxemon/Tuxemon"
+  }
+}

@@ -167,6 +167,16 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
 
 That pack starts at Agumon, branches to Greymon, Meramon, Birdramon, Centarumon, Monochromon, Tyrannomon, or Numemon, then branches to matching DW1 ultimate counterparts. The requirement data is source-backed; the local sprites are concept atlases, not ripped game assets.
 
+The larger open-source example pack is:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\tuxemon-open-61 --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch waysprite
+```
+
+`Tuxemon Open 61` contains 61 forms and 24 real three-stage paths from Tuxemon monster YAML data. Tuxemon source data is GPL-3.0-or-later; this repo only ships locally generated concept atlases for that pack, not copied Tuxemon sprites.
+
 `pets hatch <baby-form-id>` resets to baby and checkpoints existing Codex session logs by default. That keeps old local history from instantly evolving a newly chosen starter. Add `--include-history` only when replaying older logs is intentional.
 
 Packs cannot run scripts. Each stage must include `pet.json` and `spritesheet.webp`; for Codex custom pet sync, use the Codex atlas shape: `1536x1872`, 8 columns, 9 rows, transparent background.

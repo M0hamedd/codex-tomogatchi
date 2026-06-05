@@ -15,6 +15,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "plugins" / "codex-tomogatchi" / "scripts" / "tomogatchi.py"
 DW1_PACK = ROOT / "examples" / "pet-packs" / "digimon-world-1-agumon"
+TUXEMON_OPEN_PACK = ROOT / "examples" / "pet-packs" / "tuxemon-open-61"
 spec = importlib.util.spec_from_file_location("tomogatchi", SCRIPT)
 tomogatchi = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
@@ -148,6 +149,10 @@ class TomogatchiTest(unittest.TestCase):
 
     def select_dw1_pack(self) -> dict:
         tomogatchi.main(["pets", "import", str(DW1_PACK), "--replace", "--select"])
+        return self.load_json()
+
+    def select_tuxemon_open_pack(self) -> dict:
+        tomogatchi.main(["pets", "import", str(TUXEMON_OPEN_PACK), "--replace", "--select"])
         return self.load_json()
 
     def test_default_state_shape(self) -> None:
@@ -785,6 +790,41 @@ class TomogatchiTest(unittest.TestCase):
 
         self.assertEqual(state["stage"], "adult")
         self.assertEqual(state["evolution"]["formId"], "skullgreymon")
+
+    def test_tuxemon_open_pack_is_dw1_sized_and_source_backed(self) -> None:
+        manifest = tomogatchi.validate_pet_pack_source(TUXEMON_OPEN_PACK)
+        forms = manifest["forms"]
+        self.assertEqual({stage: len(stage_forms) for stage, stage_forms in forms.items()}, {"baby": 18, "teen": 20, "adult": 23})
+        self.assertEqual(sum(len(stage_forms) for stage_forms in forms.values()), 61)
+        self.assertEqual(manifest["source"]["selectedThreeStagePaths"], 24)
+        self.assertEqual(manifest["source"]["fullThreeStagePathsAvailable"], 47)
+        self.assertEqual(manifest["source"]["license"], "GPL-3.0-or-later for source data in the Tuxemon repository")
+        self.assertIn("GPL-3.0-or-later", (TUXEMON_OPEN_PACK / "SOURCE.md").read_text(encoding="utf-8"))
+
+        adult_parent_counts = {
+            parent
+            for form in forms["adult"]
+            for parent in form.get("evolvesFrom", [])
+        }
+        self.assertIn("mk01_alpha", adult_parent_counts)
+        self.assertIn("katacoon", adult_parent_counts)
+        self.assertTrue(all(form["sourceRequirements"]["game"] == "Tuxemon" for stage_forms in forms.values() for form in stage_forms))
+
+    def test_tuxemon_open_pack_can_branch_waysprite_to_lucifice(self) -> None:
+        self.select_tuxemon_open_pack()
+        tomogatchi.main(["pets", "hatch", "waysprite"])
+        state = self.load_json()
+        state["xp"] = tomogatchi.THRESHOLDS["teen"]
+        state["evolution"]["focusPoints"]["explorer"] = 3
+
+        self.assertTrue(tomogatchi.maybe_evolve(state))
+        self.assertEqual(state["stage"], "teen")
+        self.assertEqual(state["evolution"]["formId"], "demosnow")
+
+        state["xp"] = tomogatchi.THRESHOLDS["adult"]
+        self.assertTrue(tomogatchi.maybe_evolve(state))
+        self.assertEqual(state["stage"], "adult")
+        self.assertEqual(state["evolution"]["formId"], "lucifice")
 
     def test_session_log_sync_updates_counters_once_and_keeps_privacy(self) -> None:
         self.write_session_log(

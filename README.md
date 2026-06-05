@@ -25,6 +25,7 @@ In short:
 - Electron overlay with tray menu, compact mode, full device mode, resizing, and live reactions.
 - Tamagotchi-style care calls for `feed`, `rest`, `play`, and `comfort`.
 - Classic monster-raising evolution requirements based on care mistakes, missed calls, focus, and care balance.
+- Asset-only custom pet packs, including a small DW1-style Agumon example and a 61-form open-source Tuxemon evolution example.
 - Local-only JSON state and settings.
 
 ## Quick Start
@@ -220,6 +221,30 @@ py -3 scripts/generate_dw1_agumon_pack.py
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\digimon-world-1-agumon --replace --select
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
+```
+
+The repo also includes a larger open-source evolution example at:
+
+```text
+examples/pet-packs/tuxemon-open-61
+```
+
+`Tuxemon Open 61` uses 61 forms and 24 real three-stage paths from the open-source Tuxemon evolution graph, sized to be close to the commonly cited Digimon World 1 playable roster. The evolution relationships and monster metadata are source-backed from Tuxemon YAML data, which is GPL-3.0-or-later. The sprites in this repo are locally generated concept atlases; Tuxemon art assets are not copied because individual asset licenses vary.
+
+Try it:
+
+```powershell
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\tuxemon-open-61 --replace --select
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch waysprite
+```
+
+Regenerate the pack from a local Tuxemon checkout:
+
+```powershell
+git clone --depth 1 --sparse https://github.com/Tuxemon/Tuxemon.git .tmp\tuxemon-source
+git -C .tmp\tuxemon-source sparse-checkout set mods/tuxemon/db/monster
+py -3 scripts/generate_tuxemon_open_pack.py
 ```
 
 For branching packs, `pets forms` lists available forms and `pets hatch <baby-form-id>` chooses the starter baby form. Hatching resets to baby and checkpoints existing Codex session logs by default, so older history does not instantly replay and evolve the pet. Use `--include-history` only when you intentionally want old logs to count after hatching.

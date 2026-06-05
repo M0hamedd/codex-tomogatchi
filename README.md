@@ -2,7 +2,7 @@
 
 A local virtual pet for Codex that grows from privacy-safe activity counters.
 
-![Codex Tomogatchi overlay preview](docs/screenshots/overlay-preview.png)
+![Codex Tomogatchi compact overlay preview](docs/screenshots/compact-preview.png)
 
 Codex Tomogatchi watches local Codex session activity, turns aggregate counters into XP, care calls, stats, and evolution paths, and renders a live Electron overlay. It is designed as a playful desktop companion, not an analytics collector.
 
@@ -17,6 +17,12 @@ In short:
 - Use the overlay for the actual game loop.
 - Use the Codex plugin/skill for local commands, setup, state, and optional pet asset sync.
 - Use native Codex custom pets as a visual extra, not the core gameplay surface.
+
+## Known Limitations
+
+- Codex native custom pets may not refresh the selected pet live. Restarting or refreshing Codex may be required when using native pet sync; the Electron overlay is the live, supported gameplay surface.
+- Hook-free tracking depends on Codex Desktop or Codex CLI JSONL session logs under `${CODEX_HOME:-~/.codex}/sessions`. If Codex changes the log location or schema, tracker updates may be incomplete until the parser is updated.
+- The overlay reads local state and session-log checkpoints. It is not a cloud-synced game state or cross-device pet.
 
 ## Current Alpha
 
@@ -53,6 +59,22 @@ npm start
 ```
 
 Use `python3` instead of `py -3` on macOS/Linux.
+
+## Screenshots
+
+![Full device mode](docs/screenshots/overlay-preview.png)
+
+![Care call preview](docs/screenshots/care-call-preview.png)
+
+![Evolution preview](docs/screenshots/evolution-preview.png)
+
+Keep release media in `docs/screenshots/`. The static preview set is regenerated with:
+
+```powershell
+python scripts/render_overlay_preview.py
+```
+
+For GitHub release notes, include real overlay GIFs when animation timing matters, especially care calls and evolution. Avoid prompt text, command text, tool output, or project files in screenshots.
 
 ## Commands
 
@@ -274,7 +296,7 @@ npm run package
 npm run dist
 ```
 
-The packager is invoked with `npx --yes electron-builder`, so normal development installs stay light.
+The packager uses the locked `electron-builder` dev dependency. Tagged GitHub releases build Windows installer/zip artifacts with `npm run dist:win`.
 
 ## Privacy
 
@@ -286,13 +308,14 @@ See [PRIVACY.md](PRIVACY.md).
 
 ```powershell
 npm test
-py -3 scripts/validate_assets.py
 py -3 scripts/generate_original_assets.py
-py -3 scripts/render_overlay_preview.py
+python scripts/render_overlay_preview.py
 ```
 
 See [docs/SETUP.md](docs/SETUP.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+Repository code is MIT. See [LICENSE](LICENSE).
+
+Example pet packs may include separate source-data or asset license terms, so do not assume every example pack is covered only by the repository code license. `Tuxemon Open 61` uses Tuxemon YAML source data for evolution relationships and monster metadata; that source data is GPL-3.0-or-later. The sprites included here for that pack are generated concept art and do not copy Tuxemon art assets.

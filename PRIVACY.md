@@ -36,6 +36,8 @@ The app must not store:
 
 The hook-free watcher reads Codex session JSONL logs to infer privacy-safe event classes. It uses raw records only transiently while syncing, then stores aggregate counters and checkpoints.
 
+This parser depends on Codex Desktop or Codex CLI continuing to write compatible local session logs. If Codex changes the log location or schema, tracking may miss events until Codex Tomogatchi is updated; it does not keep raw logs as a fallback.
+
 For test-like tool output, the output text is inspected only in memory to decide whether the live reaction should be `test_pass` or `test_fail`. The output text is discarded.
 
 ## Network

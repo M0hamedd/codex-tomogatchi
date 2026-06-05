@@ -3,18 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "description": "Always-on-top Electron overlay for the Codex Tomogatchi pet.",
+  "author": "Codex Tomogatchi Contributors",
   "main": "overlay/main.js",
   "scripts": {
     "start": "electron .",
     "overlay": "electron .",
-    "package": "npx --yes electron-builder --dir",
-    "dist": "npx --yes electron-builder",
-    "dist:win": "npx --yes electron-builder --win",
-    "status": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status",
-    "sync": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py sync",
-    "doctor": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor",
-    "backup": "py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create",
-    "test": "py -3 -m unittest discover -s tests -v && node --check overlay/main.js && node --check overlay/preload.js && node --check overlay/renderer.js && py -3 scripts/validate_assets.py"
+    "package": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "status": "python plugins/codex-tomogatchi/scripts/tomogatchi.py status",
+    "sync": "python plugins/codex-tomogatchi/scripts/tomogatchi.py sync",
+    "doctor": "python plugins/codex-tomogatchi/scripts/tomogatchi.py doctor",
+    "backup": "python plugins/codex-tomogatchi/scripts/tomogatchi.py backup create",
+    "test": "python scripts/run_checks.py"
   },
   "build": {
     "appId": "dev.codex.tomogatchi",
@@ -39,6 +40,7 @@
       }
     ],
     "win": {
+      "icon": "build/icon.ico",
       "target": [
         "nsis",
         "zip"
@@ -51,6 +53,7 @@
     }
   },
   "devDependencies": {
-    "electron": "^42.3.2"
+    "electron": "^42.3.2",
+    "electron-builder": "^26.8.1"
   }
 }

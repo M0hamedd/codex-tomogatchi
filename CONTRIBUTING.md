@@ -6,6 +6,12 @@ Thanks for helping with Codex Tomogatchi.
 
 Install Python 3, Node.js LTS, and npm.
 
+Install Python development dependencies:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+```
+
 Windows:
 
 ```powershell
@@ -24,7 +30,6 @@ Run:
 
 ```powershell
 npm test
-py -3 scripts/validate_assets.py
 ```
 
 The CI workflow runs:
@@ -54,3 +59,15 @@ py -3 scripts/generate_original_assets.py
 ```
 
 Do not commit proprietary or fandom-inspired art as bundled defaults.
+
+Repository code is MIT, but example packs can include separate source-data or asset license terms. Document source data, asset provenance, and pack-specific license notes in the README/setup docs and pack metadata. `Tuxemon Open 61` uses GPL-3.0-or-later Tuxemon YAML source data for evolution relationships and monster metadata; its included sprites are generated concept art, not copied Tuxemon art.
+
+## Release Media
+
+When UI-facing changes affect release notes or GitHub review, update the generated static previews with:
+
+```powershell
+python scripts/render_overlay_preview.py
+```
+
+The static preview files are `docs/screenshots/compact-preview.png`, `docs/screenshots/overlay-preview.png`, `docs/screenshots/care-call-preview.png`, and `docs/screenshots/evolution-preview.png`. Add or refresh real overlay GIFs for release notes when animation timing matters. Do not include prompt text, command text, tool output, raw logs, project file contents, or private workspace details in screenshots or GIFs.

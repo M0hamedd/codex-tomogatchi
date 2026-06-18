@@ -42,6 +42,15 @@ jobs:
       - name: Build Windows app
         run: npm run dist:win -- --publish never
 
+      - name: Add stable installer alias
+        shell: pwsh
+        run: |
+          $installer = Get-ChildItem dist -File -Filter "*.exe" | Select-Object -First 1
+          if (-not $installer) {
+            throw "No Windows installer was produced."
+          }
+          Copy-Item $installer.FullName "dist\Codex-Tomogatchi-Windows-Setup.exe"
+
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:

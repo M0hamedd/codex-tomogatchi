@@ -8,7 +8,7 @@ A local virtual pet for Codex. It watches privacy-safe local activity counters, 
 
 Codex Tomogatchi is a public alpha.
 
-- Windows installer: [download the latest GitHub release](https://github.com/M0hamedd/codex-tomogatchi/releases/latest).
+- Windows installer: [download Codex-Tomogatchi-Windows-Setup.exe](https://github.com/M0hamedd/codex-tomogatchi/releases/latest/download/Codex-Tomogatchi-Windows-Setup.exe).
 - Source install: clone this repo and run the setup script below.
 - npm publishing is intentionally disabled.
 - Windows builds are currently unsigned, so Windows may show trust prompts.
@@ -18,7 +18,7 @@ Codex Tomogatchi is a public alpha.
 
 Windows installer:
 
-1. Download the latest `Codex Tomogatchi Setup ... .exe` from [Releases](https://github.com/M0hamedd/codex-tomogatchi/releases/latest).
+1. Download [Codex-Tomogatchi-Windows-Setup.exe](https://github.com/M0hamedd/codex-tomogatchi/releases/latest/download/Codex-Tomogatchi-Windows-Setup.exe).
 2. Run the installer.
 3. Open Codex Tomogatchi from the Start menu or tray.
 
@@ -237,7 +237,7 @@ npm test
 npm run package
 ```
 
-GitHub release builds use the same locked `electron-builder` dependency, install `requirements-dev.txt`, run `npm test`, and publish Windows artifacts from `npm run dist:win`. Current Windows artifacts are unsigned alpha builds.
+GitHub release builds use the same locked `electron-builder` dependency, install `requirements-dev.txt`, run `npm test`, build Windows artifacts with `npm run dist:win -- --publish never`, and publish the installer, zip, update metadata, and stable installer alias. Current Windows artifacts are unsigned alpha builds.
 
 ## More Docs
 

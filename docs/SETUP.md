@@ -8,7 +8,7 @@ This page is the practical install and operations guide. The README is the fast 
 - Node.js 22 or newer with npm 10 or newer
 - Codex Desktop or Codex CLI session logs under `${CODEX_HOME:-~/.codex}/sessions`
 
-Codex Tomogatchi is a public alpha. Install from the [latest GitHub release](https://github.com/M0hamedd/codex-tomogatchi/releases/latest) or from source. npm publishing is intentionally disabled. Windows builds are unsigned and may trigger OS trust prompts.
+Codex Tomogatchi is a public alpha. Windows users can install with [Codex-Tomogatchi-Windows-Setup.exe](https://github.com/M0hamedd/codex-tomogatchi/releases/latest/download/Codex-Tomogatchi-Windows-Setup.exe), or use the [latest GitHub release](https://github.com/M0hamedd/codex-tomogatchi/releases/latest) for all release assets. npm publishing is intentionally disabled. Windows builds are unsigned and may trigger OS trust prompts.
 
 ## Quick Start
 
@@ -227,7 +227,7 @@ Create Windows distributables:
 npm run dist:win
 ```
 
-GitHub release builds install `requirements-dev.txt`, run `npm test`, then upload the Windows installer and zip. Current Windows artifacts are unsigned alpha builds.
+GitHub release builds install `requirements-dev.txt`, run `npm test`, build Windows artifacts with `npm run dist:win -- --publish never`, then upload the installer, zip, update metadata, and stable installer alias. Current Windows artifacts are unsigned alpha builds.
 
 ## Release Screenshots
 

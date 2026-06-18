@@ -810,6 +810,19 @@ class TomogatchiTest(unittest.TestCase):
         self.assertIn("katacoon", adult_parent_counts)
         self.assertTrue(all(form["sourceRequirements"]["game"] == "Tuxemon" for stage_forms in forms.values() for form in stage_forms))
 
+    def test_public_release_notices_cover_example_pack_license_boundaries(self) -> None:
+        third_party = (ROOT / "THIRD_PARTY_NOTICES.md").read_text(encoding="utf-8")
+        dw1_notice = (DW1_PACK / "SOURCE.md").read_text(encoding="utf-8")
+        tuxemon_notice = (TUXEMON_OPEN_PACK / "SOURCE.md").read_text(encoding="utf-8")
+        dw1_manifest = tomogatchi.validate_pet_pack_source(DW1_PACK)
+
+        self.assertIn("Digimon World 1 Agumon Example", third_party)
+        self.assertIn("not affiliated", third_party.lower())
+        self.assertIn("not copied game artwork", dw1_notice)
+        self.assertIn("trademarkNotice", dw1_manifest["source"])
+        self.assertIn("GPL-3.0-or-later", third_party)
+        self.assertIn("do not treat it as covered", tuxemon_notice)
+
     def test_tuxemon_open_pack_can_branch_waysprite_to_lucifice(self) -> None:
         self.select_tuxemon_open_pack()
         tomogatchi.main(["pets", "hatch", "waysprite"])

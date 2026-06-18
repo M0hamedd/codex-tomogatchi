@@ -4,18 +4,31 @@
   "private": true,
   "description": "Always-on-top Electron overlay for the Codex Tomogatchi pet.",
   "author": "Codex Tomogatchi Contributors",
+  "license": "MIT",
+  "homepage": "https://github.com/M0hamedd/Codex-Tomogatchi#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/M0hamedd/Codex-Tomogatchi.git"
+  },
+  "bugs": {
+    "url": "https://github.com/M0hamedd/Codex-Tomogatchi/issues"
+  },
   "main": "overlay/main.js",
+  "engines": {
+    "node": ">=22",
+    "npm": ">=10"
+  },
   "scripts": {
     "start": "electron .",
     "overlay": "electron .",
     "package": "electron-builder --dir",
     "dist": "electron-builder",
     "dist:win": "electron-builder --win",
-    "status": "python plugins/codex-tomogatchi/scripts/tomogatchi.py status",
-    "sync": "python plugins/codex-tomogatchi/scripts/tomogatchi.py sync",
-    "doctor": "python plugins/codex-tomogatchi/scripts/tomogatchi.py doctor",
-    "backup": "python plugins/codex-tomogatchi/scripts/tomogatchi.py backup create",
-    "test": "python scripts/run_checks.py"
+    "status": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py status",
+    "sync": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py sync",
+    "doctor": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py doctor",
+    "backup": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py backup create",
+    "test": "node scripts/run_python.js scripts/run_checks.py"
   },
   "build": {
     "appId": "dev.codex.tomogatchi",
@@ -53,7 +66,7 @@
     }
   },
   "devDependencies": {
-    "electron": "^42.3.2",
+    "electron": "^42.4.1",
     "electron-builder": "^26.8.1"
   }
 }

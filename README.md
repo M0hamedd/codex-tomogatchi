@@ -1,40 +1,25 @@
 # Codex Tomogatchi
 
-A local virtual pet for Codex that grows from privacy-safe activity counters.
+A local virtual pet for Codex. It watches privacy-safe local activity counters, turns them into XP and care needs, and shows the pet in a live desktop overlay.
 
 ![Codex Tomogatchi compact overlay preview](docs/screenshots/compact-preview.png)
 
-Codex Tomogatchi watches local Codex session activity, turns aggregate counters into XP, care calls, stats, and evolution paths, and renders a live Electron overlay. It is designed as a playful desktop companion, not an analytics collector.
+## Status
 
-## What This Is
+Codex Tomogatchi is a public alpha.
 
-Codex Tomogatchi is primarily a live desktop overlay for Codex, not a replacement for Codex's built-in custom pets. The overlay is the main experience because it can update immediately while you work: XP changes, care calls, reactions, evolution, death/rebirth, and the full Tamagotchi-style screen all happen without restarting Codex or manually refreshing a pet.
+- Install from this repo or GitHub release artifacts.
+- npm publishing is intentionally disabled.
+- Windows builds are currently unsigned, so Windows may show trust prompts.
+- State is local-only. There is no cloud sync.
 
-Codex custom pet support is treated as an optional compatibility layer. The project can still install the current evolution stage into `${CODEX_HOME:-~/.codex}/pets`, but Codex itself may not refresh that selected pet live. For that reason, the Electron overlay is the recommended way to use Codex Tomogatchi, and native Codex pet sync is a bonus for people who also want the selected custom pet asset to match their current stage.
+## Install Fast
 
-In short:
+Requirements:
 
-- Use the overlay for the actual game loop.
-- Use the Codex plugin/skill for local commands, setup, state, and optional pet asset sync.
-- Use native Codex custom pets as a visual extra, not the core gameplay surface.
-
-## Known Limitations
-
-- Codex native custom pets may not refresh the selected pet live. Restarting or refreshing Codex may be required when using native pet sync; the Electron overlay is the live, supported gameplay surface.
-- Hook-free tracking depends on Codex Desktop or Codex CLI JSONL session logs under `${CODEX_HOME:-~/.codex}/sessions`. If Codex changes the log location or schema, tracker updates may be incomplete until the parser is updated.
-- The overlay reads local state and session-log checkpoints. It is not a cloud-synced game state or cross-device pet.
-
-## Current Alpha
-
-- Original default pet line: Sparkbit -> Byteclaw -> Coremaw.
-- Hook-free tracking through Codex session-log sync/watch.
-- Electron overlay with tray menu, compact mode, full device mode, resizing, and live reactions.
-- Tamagotchi-style care calls for `feed`, `rest`, `play`, and `comfort`.
-- Classic monster-raising evolution requirements based on care mistakes, missed calls, focus, and care balance.
-- Asset-only custom pet packs, including a small DW1-style Agumon example and a 61-form open-source Tuxemon evolution example.
-- Local-only JSON state and settings.
-
-## Quick Start
+- Python 3
+- Node.js 22 or newer with npm 10 or newer
+- Codex Desktop or Codex CLI writing session logs under `${CODEX_HOME:-~/.codex}/sessions`
 
 Windows:
 
@@ -48,6 +33,11 @@ macOS/Linux:
 ./scripts/setup.sh
 ```
 
+The setup script installs dependencies, initializes local settings, checkpoints existing Codex logs, installs the current pet stage, and starts the overlay.
+
+The npm commands automatically look for Python 3 in this order: `PYTHON`, Windows `py -3`, `python3`, then `python`.
+Most command examples use PowerShell paths; on macOS/Linux, use `python3` and `/` paths.
+
 Manual start:
 
 ```powershell
@@ -60,23 +50,25 @@ npm start
 
 Use `python3` instead of `py -3` on macOS/Linux.
 
-## Screenshots
+## What You Get
 
-![Full device mode](docs/screenshots/overlay-preview.png)
+- Live Electron overlay with compact mode, full device mode, tray menu, resizing, and reactions.
+- Original default pet line: Sparkbit -> Byteclaw -> Coremaw.
+- XP from Codex activity, with local-only counters.
+- Care calls for `feed`, `rest`, `play`, and `comfort`.
+- Evolution based on care, missed calls, mistakes, and work focus.
+- Optional sync into Codex custom pets.
+- Asset-only custom pet packs.
 
-![Care call preview](docs/screenshots/care-call-preview.png)
+## Important Limits
 
-![Evolution preview](docs/screenshots/evolution-preview.png)
+- The overlay is the main live experience. Codex custom pet sync is optional and may require restarting or refreshing Codex before the selected pet changes there.
+- Tracking depends on local Codex JSONL session logs. If Codex changes its log path or schema, tracking may miss activity until this parser is updated.
+- The app stores aggregate counters and checkpoints, not prompt text, command text, tool output, screenshots, raw session logs, or project file contents.
 
-Keep release media in `docs/screenshots/`. The static preview set is regenerated with:
+See [PRIVACY.md](PRIVACY.md).
 
-```powershell
-python scripts/render_overlay_preview.py
-```
-
-For GitHub release notes, include real overlay GIFs when animation timing matters, especially care calls and evolution. Avoid prompt text, command text, tool output, or project files in screenshots.
-
-## Commands
+## Common Commands
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status
@@ -87,32 +79,22 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care play
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py care comfort
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py sync
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py watch
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py profile
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
 ```
 
-QoL commands:
+Useful maintenance:
 
 ```powershell
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup list
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup restore C:\path\backup.zip --confirm
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets validate C:\path\my-pet-line.zip
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets export my-pet-line --output C:\path\my-pet-line.zip
 ```
 
-`doctor` checks the local state/settings/pet install paths and flags common setup problems. Backups include Tomogatchi state and settings only; they do not include raw Codex session logs.
+`doctor` checks local setup. Backups include Tomogatchi state and settings only; they do not include raw Codex logs.
 
 ## Settings
 
-Settings are stored at:
+Settings live at:
 
 ```text
 ${CODEX_HOME:-~/.codex}/codex-tomogatchi/settings.json
@@ -129,13 +111,13 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings overlay.startMode 
 
 ## Custom Pet Packs
 
-Custom pets are asset-only packs. They can be shared as folders or `.zip` files and are imported into:
+Pet packs are asset-only folders or zip files. They cannot run scripts. They install into:
 
 ```text
 ${CODEX_HOME:-~/.codex}/codex-tomogatchi/pet-packs/<pack-id>/
 ```
 
-Pack layout:
+Basic layout:
 
 ```text
 my-pet-line.zip
@@ -152,170 +134,82 @@ my-pet-line.zip
       spritesheet.webp
 ```
 
-`pack.json`:
-
-```json
-{
-  "schemaVersion": 1,
-  "id": "my-pet-line",
-  "name": "My Pet Line",
-  "author": "Someone",
-  "description": "A custom three-stage evolution line.",
-  "stages": {
-    "baby": "stages/baby",
-    "teen": "stages/teen",
-    "adult": "stages/adult"
-  }
-}
-```
-
-Each stage folder must include a `pet.json` that references `spritesheet.webp`, plus the `spritesheet.webp` file. Pet packs cannot run scripts or write outside the local pet-pack folder. For Codex custom pet compatibility, spritesheets should follow the Codex pet atlas shape: `1536x1872`, 8 columns, 9 rows, transparent background.
-
-### Branching Packs
-
-Packs can also define `forms` instead of one asset per stage. A form has its own asset path, optional `evolvesFrom`, and requirements. The current branching evaluator supports the normal Tomogatchi requirement keys plus a `dw1` requirement object with Digimon World 1-style groups:
-
-- `stats`
-- `careMistakes`
-- `weight`
-- `bonus`
-
-DW1-style rules require 3 of those 4 groups by default, matching the PS1 requirement model documented by SydMontague's Digimon World evolution guide.
-
-Example form:
-
-```json
-{
-  "id": "greymon",
-  "name": "Greymon",
-  "assetPath": "forms/teen/greymon",
-  "evolvesFrom": ["agumon"],
-  "requirements": {
-    "reason": "DW1 Greymon groups matched",
-    "dw1": {
-      "groupsRequired": 3,
-      "stats": {
-        "hp": 2000,
-        "mp": 1500,
-        "offense": 100,
-        "defense": 100,
-        "speed": 100,
-        "brains": 100
-      },
-      "careMistakes": { "max": 1 },
-      "weight": { "min": 25, "max": 35 },
-      "bonus": [
-        { "disciplineMin": 90 },
-        { "techniquesMin": 35 }
-      ]
-    }
-  }
-}
-```
-
-The repo includes an example branching pack at:
-
-```text
-examples/pet-packs/digimon-world-1-agumon
-```
-
-It starts at Agumon, branches to Greymon, Meramon, Birdramon, Centarumon, Monochromon, Tyrannomon, or Numemon, then branches to matching DW1 ultimate counterparts such as MetalGreymon, SkullGreymon, Andromon, Phoenixmon, Megadramon, MetalMamemon, Giromon, or Monzaemon. Requirement data is stored in the pack as source-backed DW1 groups; local sprites are concept atlases, not ripped game assets.
-
-Commands:
+Pack commands:
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --replace --select
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets validate C:\path\my-pet-line.zip
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets export my-pet-line --output C:\path\my-pet-line.zip
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select my-pet-line
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
 ```
 
-Use the bundled DW1 example:
+Branching packs can define multiple forms per stage and choose evolution paths from requirements. The bundled examples are:
+
+- `examples/pet-packs/digimon-world-1-agumon`: a Digimon World 1-style branching rules example with generated concept sprites.
+- `examples/pet-packs/tuxemon-open-61`: a 61-form Tuxemon-derived example using GPL-3.0-or-later source data and generated concept sprites.
+
+Use a branching starter:
 
 ```powershell
-py -3 scripts/generate_dw1_agumon_pack.py
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\digimon-world-1-agumon --replace --select
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
 ```
 
-The repo also includes a larger open-source evolution example at:
+`pets hatch <baby-form-id>` resets to baby and checkpoints existing Codex logs by default, so old history does not instantly evolve the new starter.
 
-```text
-examples/pet-packs/tuxemon-open-61
-```
+## Screenshots
 
-`Tuxemon Open 61` uses 61 forms and 24 real three-stage paths from the open-source Tuxemon evolution graph, sized to be close to the commonly cited Digimon World 1 playable roster. The evolution relationships and monster metadata are source-backed from Tuxemon YAML data, which is GPL-3.0-or-later. The sprites in this repo are locally generated concept atlases; Tuxemon art assets are not copied because individual asset licenses vary.
+![Full device mode](docs/screenshots/overlay-preview.png)
 
-Try it:
+![Care call preview](docs/screenshots/care-call-preview.png)
 
-```powershell
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\tuxemon-open-61 --replace --select
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch waysprite
-```
+![Evolution preview](docs/screenshots/evolution-preview.png)
 
-Regenerate the pack from a local Tuxemon checkout:
+Refresh static previews with:
 
 ```powershell
-git clone --depth 1 --sparse https://github.com/Tuxemon/Tuxemon.git .tmp\tuxemon-source
-git -C .tmp\tuxemon-source sparse-checkout set mods/tuxemon/db/monster
-py -3 scripts/generate_tuxemon_open_pack.py
-```
-
-For branching packs, `pets forms` lists available forms and `pets hatch <baby-form-id>` chooses the starter baby form. Hatching resets to baby and checkpoints existing Codex session logs by default, so older history does not instantly replay and evolve the pet. Use `--include-history` only when you intentionally want old logs to count after hatching.
-
-## Optional Autostart
-
-On Windows, install a no-admin Scheduled Task that starts the overlay at login:
-
-```powershell
-.\scripts\install-autostart.ps1
-```
-
-Remove it:
-
-```powershell
-.\scripts\uninstall-autostart.ps1
-```
-
-Autostart is off by default. It launches the overlay minimized to tray, so it is ready when you open Codex.
-
-## Packaging
-
-The overlay can be packaged with Electron Builder on demand:
-
-```powershell
-npm run package
-npm run dist
-```
-
-The packager uses the locked `electron-builder` dev dependency. Tagged GitHub releases build Windows installer/zip artifacts with `npm run dist:win`.
-
-## Privacy
-
-Codex Tomogatchi stores aggregate counters, timestamps, XP, stats, lifecycle state, evolution metadata, DW1-style derived raising stats, reactions, settings, and session-log checkpoints. It does not store prompt text, command text, tool output, screenshots, raw hook payloads, raw session-log records, or project file contents.
-
-See [PRIVACY.md](PRIVACY.md).
-
-## Development
-
-```powershell
-npm test
-py -3 scripts/generate_original_assets.py
 python scripts/render_overlay_preview.py
 ```
 
-See [docs/SETUP.md](docs/SETUP.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+Use `python3 scripts/render_overlay_preview.py` on systems where the Python executable is named `python3`.
+
+Do not include prompt text, command text, tool output, raw logs, project files, or private workspace details in release screenshots.
+
+## Build
+
+Windows release check:
+
+```powershell
+npm ci
+python -m pip install -r requirements-dev.txt
+npm test
+npm run package
+npm run dist:win
+```
+
+macOS/Linux local check:
+
+```bash
+npm ci
+python3 -m pip install -r requirements-dev.txt
+npm test
+npm run package
+```
+
+GitHub release builds use the same locked `electron-builder` dependency, install `requirements-dev.txt`, run `npm test`, and publish Windows artifacts from `npm run dist:win`. Current Windows artifacts are unsigned alpha builds.
+
+## More Docs
+
+- [Setup](docs/SETUP.md)
+- [Privacy](PRIVACY.md)
+- [Contributing](CONTRIBUTING.md)
+- [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## License
 
 Repository code is MIT. See [LICENSE](LICENSE).
 
-Example pet packs may include separate source-data or asset license terms, so do not assume every example pack is covered only by the repository code license. `Tuxemon Open 61` uses Tuxemon YAML source data for evolution relationships and monster metadata; that source data is GPL-3.0-or-later. The sprites included here for that pack are generated concept art and do not copy Tuxemon art assets.
+Example pet packs can include separate source-data, asset, or trademark terms. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and each pack's `SOURCE.md` or `pack.json` source block.

@@ -17,7 +17,7 @@ if (-not (Test-Path $Launcher)) {
 }
 
 if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-  throw "npm was not found. Install Node.js LTS before installing autostart."
+  throw "npm was not found. Install Node.js 22+ with npm 10+ before installing autostart."
 }
 
 $UserId = if ($env:USERDOMAIN) { "$env:USERDOMAIN\$env:USERNAME" } else { $env:USERNAME }

@@ -50,7 +50,7 @@ Push-Location $RepoRoot
 try {
   if (-not $SkipNpmInstall) {
     if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-      throw "npm was not found. Install Node.js LTS and rerun setup."
+      throw "npm was not found. Install Node.js 22+ with npm 10+ and rerun setup."
     }
     npm install
   }

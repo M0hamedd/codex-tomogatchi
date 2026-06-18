@@ -36,7 +36,7 @@ cd "$REPO_ROOT"
 
 if [[ "$SKIP_NPM_INSTALL" -eq 0 ]]; then
   if ! command -v npm >/dev/null 2>&1; then
-    echo "npm was not found. Install Node.js LTS and rerun setup." >&2
+    echo "npm was not found. Install Node.js 22+ with npm 10+ and rerun setup." >&2
     exit 1
   fi
   npm install

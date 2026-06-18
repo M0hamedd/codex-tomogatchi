@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 
 if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-  throw "npm was not found. Install Node.js LTS before starting Codex Tomogatchi."
+  throw "npm was not found. Install Node.js 22+ with npm 10+ before starting Codex Tomogatchi."
 }
 
 Push-Location $RepoRoot

@@ -5,13 +5,13 @@
   "description": "Always-on-top Electron overlay for the Codex Tomogatchi pet.",
   "author": "Codex Tomogatchi Contributors",
   "license": "MIT",
-  "homepage": "https://github.com/M0hamedd/Codex-Tomogatchi#readme",
+  "homepage": "https://github.com/M0hamedd/codex-tomogatchi#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/M0hamedd/Codex-Tomogatchi.git"
+    "url": "git+https://github.com/M0hamedd/codex-tomogatchi.git"
   },
   "bugs": {
-    "url": "https://github.com/M0hamedd/Codex-Tomogatchi/issues"
+    "url": "https://github.com/M0hamedd/codex-tomogatchi/issues"
   },
   "main": "overlay/main.js",
   "engines": {
@@ -24,9 +24,15 @@
     "package": "electron-builder --dir",
     "dist": "electron-builder",
     "dist:win": "electron-builder --win",
+    "setup": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py settings --init && node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py install && node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py reset --confirm --from-now && node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py doctor",
     "status": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py status",
     "sync": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py sync",
     "doctor": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py doctor",
+    "care": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py care",
+    "feed": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py care feed",
+    "rest": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py care rest",
+    "play": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py care play",
+    "comfort": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py care comfort",
     "backup": "node scripts/run_python.js plugins/codex-tomogatchi/scripts/tomogatchi.py backup create",
     "test": "node scripts/run_python.js scripts/run_checks.py"
   },

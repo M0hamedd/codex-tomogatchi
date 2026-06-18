@@ -558,7 +558,7 @@ class TomogatchiTest(unittest.TestCase):
         state = self.load_json()
         self.assertEqual(state["assets"]["activePetId"], "codex-tomogatchi-teen")
         self.assertEqual(state["assets"]["selectedAvatarId"], "custom:codex-tomogatchi-teen")
-        self.assertEqual(Path(state["assets"]["installedPetPath"]), self.teen_pet_dir)
+        self.assertTrue(Path(state["assets"]["installedPetPath"]).samefile(self.teen_pet_dir))
         config_text = self.config.read_text(encoding="utf-8")
         self.assertIn('conversationDetailMode = "STEPS_COMMANDS"', config_text)
         self.assertIn('selected-avatar-id = "custom:codex-tomogatchi-teen"', config_text)

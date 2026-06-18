@@ -8,23 +8,31 @@ This page is the practical install and operations guide. The README is the fast 
 - Node.js 22 or newer with npm 10 or newer
 - Codex Desktop or Codex CLI session logs under `${CODEX_HOME:-~/.codex}/sessions`
 
-Codex Tomogatchi is a public alpha. Install from this repo or GitHub release artifacts. npm publishing is intentionally disabled. Windows builds are unsigned and may trigger OS trust prompts.
+Codex Tomogatchi is a public alpha. Install from the [latest GitHub release](https://github.com/M0hamedd/codex-tomogatchi/releases/latest) or from source. npm publishing is intentionally disabled. Windows builds are unsigned and may trigger OS trust prompts.
 
 ## Quick Start
 
 Windows:
 
 ```powershell
+git clone https://github.com/M0hamedd/codex-tomogatchi.git
+cd codex-tomogatchi
+npm ci
+python -m pip install -r requirements-dev.txt
 .\scripts\setup.ps1
 ```
 
 macOS/Linux:
 
 ```bash
+git clone https://github.com/M0hamedd/codex-tomogatchi.git
+cd codex-tomogatchi
+npm ci
+python3 -m pip install -r requirements-dev.txt
 ./scripts/setup.sh
 ```
 
-The setup script installs npm dependencies, initializes settings, installs the current pet stage, checkpoints current session logs, tries to register the local plugin marketplace, and starts the overlay.
+The setup script installs npm dependencies when needed, initializes settings, installs the current pet stage, checkpoints current session logs, tries to register the local plugin marketplace, starts the overlay, runs `doctor`, and prints one next action.
 
 The npm commands automatically look for Python 3 in this order: `PYTHON`, Windows `py -3`, `python3`, then `python`.
 Most command examples use PowerShell paths; on macOS/Linux, use `python3` and `/` paths.
@@ -62,7 +70,7 @@ Native Codex custom pet sync is optional. Codex may not refresh the selected cus
 ## Health Checks
 
 ```powershell
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor
+npm run doctor
 ```
 
 `doctor` checks state, settings, pet install paths, Codex avatar config, Electron dependencies, logs, and backups. Warnings are normal on a fresh install before the pet has been installed or backed up.
@@ -105,6 +113,17 @@ ${CODEX_HOME:-~/.codex}/codex-tomogatchi/settings.json
 Pet packs are asset-only folders or zip files. They cannot run scripts.
 
 Useful commands:
+
+```powershell
+npm run care -- feed
+npm run care -- rest
+npm run care -- play
+npm run care -- comfort
+npm run status
+npm run doctor
+```
+
+Direct pack commands:
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list

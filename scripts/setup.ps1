@@ -39,6 +39,26 @@ function Invoke-Optional {
   }
 }
 
+function Assert-NodeTooling {
+  if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    throw "Node.js was not found. Install Node.js 22+ with npm 10+ and rerun setup."
+  }
+  $NodeRaw = (& node --version).Trim().TrimStart("v")
+  $NodeMajor = [int]($NodeRaw.Split(".")[0])
+  if ($NodeMajor -lt 22) {
+    throw "Node.js 22+ is required. Found Node.js v$NodeRaw. Upgrade Node.js and rerun setup."
+  }
+
+  if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
+    throw "npm was not found. Install Node.js 22+ with npm 10+ and rerun setup."
+  }
+  $NpmRaw = (& npm --version).Trim()
+  $NpmMajor = [int]($NpmRaw.Split(".")[0])
+  if ($NpmMajor -lt 10) {
+    throw "npm 10+ is required. Found npm $NpmRaw. Upgrade Node.js/npm and rerun setup."
+  }
+}
+
 Write-Host "Codex Tomogatchi setup"
 Write-Host "Repo: $RepoRoot"
 
@@ -48,10 +68,11 @@ if (-not (Test-Path $PluginScript)) {
 
 Push-Location $RepoRoot
 try {
+  if (-not $SkipNpmInstall -or -not $SkipLaunch) {
+    Assert-NodeTooling
+  }
+
   if (-not $SkipNpmInstall) {
-    if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-      throw "npm was not found. Install Node.js 22+ with npm 10+ and rerun setup."
-    }
     npm install
   }
 
@@ -84,5 +105,12 @@ try {
   Pop-Location
 }
 
-Write-Host "Setup complete."
-Invoke-Python @($PluginScript, "settings")
+Write-Host ""
+Write-Host "Setup complete. Running doctor..."
+Invoke-Python @($PluginScript, "doctor")
+Write-Host ""
+if (-not $SkipLaunch) {
+  Write-Host "Next: look for the Codex Tomogatchi overlay or tray icon."
+} else {
+  Write-Host "Next: run npm start from this repo to launch the overlay."
+}

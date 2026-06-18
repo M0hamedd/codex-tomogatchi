@@ -2,18 +2,33 @@
 
 A local virtual pet for Codex. It watches privacy-safe local activity counters, turns them into XP and care needs, and shows the pet in a live desktop overlay.
 
-![Codex Tomogatchi compact overlay preview](docs/screenshots/compact-preview.png)
+![Codex Tomogatchi quick demo](docs/screenshots/quick-demo.gif)
 
 ## Status
 
 Codex Tomogatchi is a public alpha.
 
-- Install from this repo or GitHub release artifacts.
+- Windows installer: [download the latest GitHub release](https://github.com/M0hamedd/codex-tomogatchi/releases/latest).
+- Source install: clone this repo and run the setup script below.
 - npm publishing is intentionally disabled.
 - Windows builds are currently unsigned, so Windows may show trust prompts.
 - State is local-only. There is no cloud sync.
 
-## Install Fast
+## Install In 60 Seconds
+
+Windows installer:
+
+1. Download the latest `Codex Tomogatchi Setup ... .exe` from [Releases](https://github.com/M0hamedd/codex-tomogatchi/releases/latest).
+2. Run the installer.
+3. Open Codex Tomogatchi from the Start menu or tray.
+
+Known alpha limits:
+
+- Windows installers are unsigned, so Windows may show trust prompts.
+- Codex custom pet sync may require restarting or refreshing Codex.
+- State stays local. There is no cloud sync.
+
+## Source Install
 
 Requirements:
 
@@ -24,12 +39,20 @@ Requirements:
 Windows:
 
 ```powershell
+git clone https://github.com/M0hamedd/codex-tomogatchi.git
+cd codex-tomogatchi
+npm ci
+python -m pip install -r requirements-dev.txt
 .\scripts\setup.ps1
 ```
 
-macOS/Linux:
+macOS/Linux source path:
 
 ```bash
+git clone https://github.com/M0hamedd/codex-tomogatchi.git
+cd codex-tomogatchi
+npm ci
+python3 -m pip install -r requirements-dev.txt
 ./scripts/setup.sh
 ```
 
@@ -69,6 +92,21 @@ Use `python3` instead of `py -3` on macOS/Linux.
 See [PRIVACY.md](PRIVACY.md).
 
 ## Common Commands
+
+Short npm wrappers:
+
+```powershell
+npm run status
+npm run doctor
+npm run care -- feed
+npm run care -- rest
+npm run care -- play
+npm run care -- comfort
+npm run sync
+npm run backup
+```
+
+Direct Python commands:
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py status

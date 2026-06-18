@@ -58,7 +58,7 @@ python3 -m pip install -r requirements-dev.txt
 
 The setup script installs dependencies, initializes local settings, checkpoints existing Codex logs, installs the current pet stage, and starts the overlay.
 
-The npm commands automatically look for Python 3 in this order: `PYTHON`, Windows `py -3`, `python3`, then `python`.
+The npm commands automatically look for Python 3 in this order: `PYTHON`, `python`, `python3`, then Windows `py -3`.
 Most command examples use PowerShell paths; on macOS/Linux, use `python3` and `/` paths.
 
 Manual start:

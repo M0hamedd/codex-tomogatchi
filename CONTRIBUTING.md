@@ -34,7 +34,7 @@ Run the same local gate used by CI:
 npm test
 ```
 
-The npm test command automatically uses `PYTHON`, Windows `py -3`, `python3`, or `python`, whichever available command provides Python 3. It runs Python unit tests, Electron JavaScript syntax checks, pet asset validation, and pet-pack validation.
+The npm test command automatically uses `PYTHON`, `python`, `python3`, or Windows `py -3`, whichever available command provides Python 3. It runs Python unit tests, Electron JavaScript syntax checks, pet asset validation, and pet-pack validation.
 
 ## Privacy Rules
 

@@ -17,9 +17,9 @@ if (process.env.PYTHON) {
 }
 
 if (process.platform === "win32") {
-  candidates.push({ command: "py", prefix: ["-3"], label: "py -3" });
-  candidates.push({ command: "python3", prefix: [], label: "python3" });
   candidates.push({ command: "python", prefix: [], label: "python" });
+  candidates.push({ command: "python3", prefix: [], label: "python3" });
+  candidates.push({ command: "py", prefix: ["-3"], label: "py -3" });
 } else {
   candidates.push({ command: "python3", prefix: [], label: "python3" });
   candidates.push({ command: "python", prefix: [], label: "python" });

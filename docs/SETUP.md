@@ -1,44 +1,55 @@
 # Setup
 
-Codex Tomogatchi can run as a repo overlay during development or as a packaged Electron app.
+This page is the practical install and operations guide. The README is the fast overview.
 
 ## Requirements
 
 - Python 3
-- Node.js LTS and npm
+- Node.js 22 or newer with npm 10 or newer
 - Codex Desktop or Codex CLI session logs under `${CODEX_HOME:-~/.codex}/sessions`
+
+Codex Tomogatchi is a public alpha. Install from the [latest GitHub release](https://github.com/M0hamedd/codex-tomogatchi/releases/latest) or from source. npm publishing is intentionally disabled. Windows builds are unsigned and may trigger OS trust prompts.
 
 ## Quick Start
 
 Windows:
 
 ```powershell
+git clone https://github.com/M0hamedd/codex-tomogatchi.git
+cd codex-tomogatchi
+npm ci
+python -m pip install -r requirements-dev.txt
 .\scripts\setup.ps1
 ```
 
 macOS/Linux:
 
 ```bash
+git clone https://github.com/M0hamedd/codex-tomogatchi.git
+cd codex-tomogatchi
+npm ci
+python3 -m pip install -r requirements-dev.txt
 ./scripts/setup.sh
 ```
 
-The setup script installs npm dependencies, initializes settings, installs the current pet stage into `$CODEX_HOME/pets`, resets from the current session-log position, tries to register the local plugin marketplace, and launches the overlay.
+The setup script installs npm dependencies when needed, initializes settings, installs the current pet stage, checkpoints current session logs, tries to register the local plugin marketplace, starts the overlay, runs `doctor`, and prints one next action.
 
-Autostart is optional and off by default. To opt in during setup on Windows:
+The npm commands automatically look for Python 3 in this order: `PYTHON`, `python`, `python3`, then Windows `py -3`.
+Most command examples use PowerShell paths; on macOS/Linux, use `python3` and `/` paths.
+
+Use Windows autostart:
 
 ```powershell
 .\scripts\setup.ps1 -InstallAutostart
 ```
 
-## Live Surface And Limitations
+Skip marketplace registration during development:
 
-The Electron overlay is the main live surface. It updates immediately for XP, care calls, reactions, evolution, death/rebirth, and compact or full device mode.
+```powershell
+.\scripts\setup.ps1 -SkipMarketplace
+```
 
-Native Codex custom pet sync is optional compatibility. Codex may not refresh the selected custom pet live after this project installs a new stage into `$CODEX_HOME/pets`, so restart or refresh Codex if you rely on the native pet view.
-
-Hook-free tracking depends on Codex Desktop or Codex CLI JSONL session logs under `${CODEX_HOME:-~/.codex}/sessions`. If those logs are missing or Codex changes their location or schema, run `doctor` and expect tracking to be incomplete until the parser is updated.
-
-## Manual Commands
+## Manual Start
 
 ```powershell
 npm install
@@ -50,15 +61,21 @@ npm start
 
 Use `python3` instead of `py -3` on macOS/Linux.
 
-## Diagnostics And Backups
+## Overlay And Codex Pet Sync
 
-Check common setup issues:
+The Electron overlay is the real live surface. It updates immediately for XP, care calls, reactions, evolution, death/rebirth, compact mode, and full device mode.
+
+Native Codex custom pet sync is optional. Codex may not refresh the selected custom pet immediately after Tomogatchi installs a new stage into `$CODEX_HOME/pets`; restart or refresh Codex if you rely on that view.
+
+## Health Checks
 
 ```powershell
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py doctor
+npm run doctor
 ```
 
-Create and restore a state/settings backup:
+`doctor` checks state, settings, pet install paths, Codex avatar config, Electron dependencies, logs, and backups. Warnings are normal on a fresh install before the pet has been installed or backed up.
+
+## Backups
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup create
@@ -66,7 +83,7 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup list
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py backup restore C:\path\backup.zip --confirm
 ```
 
-Backups do not include raw Codex session logs.
+Backups include Tomogatchi state and settings only. They do not include raw Codex session logs.
 
 ## Settings
 
@@ -76,88 +93,68 @@ Show settings:
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings
 ```
 
-Change XP pace:
+Common changes:
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings xp.pace slow
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings xp.pace normal
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings xp.pace fast
-```
-
-Change care-call strictness:
-
-```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings care.callStrictness relaxed
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings care.callStrictness normal
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings care.callStrictness strict
-```
-
-Disable death:
-
-```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings lifecycle.deathEnabled false
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings overlay.startMode full
 ```
 
-Start overlay in full mode:
+Settings are stored at:
 
-```powershell
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py settings overlay.startMode full
+```text
+${CODEX_HOME:-~/.codex}/codex-tomogatchi/settings.json
 ```
 
 ## Custom Pet Packs
 
-List packs:
+Pet packs are asset-only folders or zip files. They cannot run scripts.
+
+Useful commands:
+
+```powershell
+npm run care -- feed
+npm run care -- rest
+npm run care -- play
+npm run care -- comfort
+npm run status
+npm run doctor
+```
+
+Direct pack commands:
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets list
-```
-
-List forms in the active pack:
-
-```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
-```
-
-Import and select a pack:
-
-```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import C:\path\my-pet-line.zip --select
-```
-
-Validate or export a pack for sharing:
-
-```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets validate C:\path\my-pet-line.zip
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets export my-pet-line --output C:\path\my-pet-line.zip
+py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
 ```
 
-Choose a baby starter from a branching pack:
+Choose a baby starter in a branching pack:
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
 ```
 
-Return to bundled pets:
+Hatching resets to baby and checkpoints current session logs by default. Add `--include-history` only when replaying old Codex logs is intentional.
+
+## Bundled Example Packs
+
+Digimon World 1-style example:
 
 ```powershell
-py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets select default
-```
-
-Custom packs are asset-only folders or zip files with `pack.json` and `baby`, `teen`, and `adult` stage folders. Each stage must include `pet.json` and `spritesheet.webp`.
-
-Use the bundled branching Digimon World 1 Agumon example:
-
-```powershell
-py -3 scripts/generate_dw1_agumon_pack.py
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\digimon-world-1-agumon --replace --select
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch agumon
 ```
 
-Branching packs can define multiple `forms` per stage. The DW1 example stores the original-style stats, care mistake, weight, and bonus groups in `pack.json`, then uses the local Codex Tomogatchi raising stats to choose the matching form.
-`pets hatch <baby-form-id>` resets to baby from the current session-log position by default, so old Codex logs do not immediately evolve a new starter.
+This pack uses source-backed evolution requirement data and generated concept sprites. It is not affiliated with or endorsed by the owners of Digimon or Digimon World. Keep `examples/pet-packs/digimon-world-1-agumon/SOURCE.md` with the pack when sharing it.
 
-Use the larger open-source Tuxemon example:
+Tuxemon example:
 
 ```powershell
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets import examples\pet-packs\tuxemon-open-61 --replace --select
@@ -165,41 +162,54 @@ py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets forms
 py -3 plugins/codex-tomogatchi/scripts/tomogatchi.py pets hatch waysprite
 ```
 
-`Tuxemon Open 61` is a DW1-sized pack with 61 forms and 24 real three-stage paths from Tuxemon YAML evolution data. Tuxemon source data is GPL-3.0-or-later. The included sprites are generated concept atlases, not copied Tuxemon art.
+`Tuxemon Open 61` uses GPL-3.0-or-later Tuxemon YAML source data for evolution relationships and monster metadata. Its sprites are generated concept atlases, not copied Tuxemon art.
 
-Licensing note: repository code is MIT, but example packs can include separate source-data or asset terms. Keep source data and asset provenance documented when adding or sharing packs.
+## Windows Autostart
 
-## Optional Windows Autostart
-
-Install a no-admin Scheduled Task that starts Codex Tomogatchi when you log in:
+Install:
 
 ```powershell
 .\scripts\install-autostart.ps1
 ```
 
-Start it immediately after installing:
+Install and start immediately:
 
 ```powershell
 .\scripts\install-autostart.ps1 -RunNow
 ```
 
-Remove the task:
+Remove:
 
 ```powershell
 .\scripts\uninstall-autostart.ps1
 ```
 
-The task is named `CodexTomogatchiOverlay` by default and runs:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File .\scripts\start-overlay.ps1 -StartMinimized
-```
-
-It starts the overlay minimized to tray and uses the repo it was installed from.
+The scheduled task is named `CodexTomogatchiOverlay`. It starts the overlay minimized to tray and uses the repo path it was installed from.
 
 ## Packaging
 
-Create an unpacked app directory:
+Use `npm ci` for release checks from a clean checkout. The setup scripts use `npm install` for everyday local installs.
+
+Windows release check:
+
+```powershell
+npm ci
+python -m pip install -r requirements-dev.txt
+npm test
+npm run package
+npm run dist:win
+```
+
+macOS/Linux local check:
+
+```bash
+npm ci
+python3 -m pip install -r requirements-dev.txt
+npm test
+npm run package
+```
+
+Create an unpacked app:
 
 ```powershell
 npm run package
@@ -211,17 +221,29 @@ Create distributables:
 npm run dist
 ```
 
-The packaging scripts use the locked `electron-builder` dev dependency. GitHub release builds run `npm run dist:win` and upload the Windows installer/zip artifacts.
+Create Windows distributables:
 
-## Release Screenshots And GIFs
+```powershell
+npm run dist:win
+```
 
-Use `python scripts/render_overlay_preview.py` to refresh the static preview set in `docs/screenshots/`.
+GitHub release builds install `requirements-dev.txt`, run `npm test`, then upload the Windows installer and zip. Current Windows artifacts are unsigned alpha builds.
 
-For GitHub release notes or UI-facing PRs, capture the real overlay and add concise references for:
+## Release Screenshots
 
-- Compact mode: `docs/screenshots/compact-preview.png`
-- Full device mode: `docs/screenshots/overlay-preview.png`
-- Care calls: `docs/screenshots/care-call-preview.png` or a real overlay GIF
-- Evolution: `docs/screenshots/evolution-preview.png` or a real overlay GIF
+Refresh static previews:
 
-Do not include prompt text, command text, tool output, raw logs, screenshots of project files, or private workspace details in release media.
+```powershell
+python scripts/render_overlay_preview.py
+```
+
+Use `python3 scripts/render_overlay_preview.py` on systems where the Python executable is named `python3`.
+
+Preview files:
+
+- `docs/screenshots/compact-preview.png`
+- `docs/screenshots/overlay-preview.png`
+- `docs/screenshots/care-call-preview.png`
+- `docs/screenshots/evolution-preview.png`
+
+Use real overlay GIFs in release notes when animation timing matters. Do not include prompt text, command text, tool output, raw logs, project files, or private workspace details.

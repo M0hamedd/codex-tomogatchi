@@ -646,8 +646,11 @@
   "name": "Digimon World 1 Agumon Line",
   "schemaVersion": 1,
   "source": {
+    "assetNotice": "Sprites are locally generated Codex Tomogatchi concept atlases, not copied game assets.",
+    "license": "Guide/source terms belong to the linked author/site; game names and characters belong to their respective owners.",
     "name": "Digimon World - Evolution Guide by SydMontague",
     "notes": "Natural evolutions use the original 3-of-4 DW1 requirement groups: stats, care mistakes, weight, and bonus.",
+    "trademarkNotice": "Not affiliated with, endorsed by, sponsored by, or approved by the owners of Digimon or Digimon World.",
     "url": "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1"
   }
 }

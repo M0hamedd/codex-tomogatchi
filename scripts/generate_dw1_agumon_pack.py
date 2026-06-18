@@ -18,6 +18,16 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[1]
 PACK_ROOT = ROOT / "examples" / "pet-packs" / "digimon-world-1-agumon"
 SOURCE_URL = "https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1"
+SOURCE_NOTICE = """# Digimon World 1 Agumon Example Source Notice
+
+This pet pack is a branching-rule example for Codex Tomogatchi. It uses Digimon World 1-style evolution requirement groups transcribed from:
+
+https://gamefaqs.gamespot.com/ps/913684-digimon-world/faqs/73845?single=1
+
+The included `spritesheet.webp` files are locally generated Codex Tomogatchi concept atlases. They are not ripped game sprites and not copied game artwork.
+
+Digimon, Digimon World, Agumon, and related character names are trademarks or protected works of their respective owners. Codex Tomogatchi is not affiliated with, endorsed by, sponsored by, or approved by those owners. This pack is included as a local example for compatibility testing and branching-rule demonstration.
+"""
 FRAME_W = 192
 FRAME_H = 208
 COLUMNS = 8
@@ -412,6 +422,9 @@ def main() -> int:
         "source": {
             "name": "Digimon World - Evolution Guide by SydMontague",
             "url": SOURCE_URL,
+            "license": "Guide/source terms belong to the linked author/site; game names and characters belong to their respective owners.",
+            "assetNotice": "Sprites are locally generated Codex Tomogatchi concept atlases, not copied game assets.",
+            "trademarkNotice": "Not affiliated with, endorsed by, sponsored by, or approved by the owners of Digimon or Digimon World.",
             "notes": "Natural evolutions use the original 3-of-4 DW1 requirement groups: stats, care mistakes, weight, and bonus.",
         },
         "forms": {
@@ -420,6 +433,7 @@ def main() -> int:
         },
     }
     (PACK_ROOT / "pack.json").write_text(json.dumps(pack, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (PACK_ROOT / "SOURCE.md").write_text(SOURCE_NOTICE, encoding="utf-8")
     print(f"Generated {PACK_ROOT}")
     return 0
 

@@ -39,6 +39,10 @@ LICENSE and CONTRIBUTING.md files for the full terms.
 
 This pack does not copy Tuxemon sprite artwork. The included spritesheet.webp
 files are locally generated Codex Tomogatchi concept atlases.
+
+Because this pack uses GPL-3.0-or-later source data, do not treat it as covered
+only by the repository's MIT license. Keep this notice with the pack when
+redistributing it.
 """
 
 

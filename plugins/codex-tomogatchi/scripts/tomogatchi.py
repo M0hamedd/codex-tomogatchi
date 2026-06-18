@@ -3258,9 +3258,16 @@ def collect_doctor_checks() -> list[dict[str, str]]:
     if root.exists():
         count = sum(1 for _path in root.rglob("*.jsonl"))
         detail = f"{root} ({count} session log files)"
+        if not count:
+            detail += "; open Codex Desktop or run Codex CLI once so session logs exist"
         doctor_check("session logs", "ok" if count else "warn", detail, checks)
     else:
-        doctor_check("session logs", "warn", f"{root} does not exist yet", checks)
+        doctor_check(
+            "session logs",
+            "warn",
+            f"{root} does not exist yet; open Codex Desktop or run Codex CLI once",
+            checks,
+        )
 
     for stage in STAGES:
         pet_dir = active_pet_dir(stage)

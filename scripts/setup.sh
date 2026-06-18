@@ -29,16 +29,40 @@ else
   exit 1
 fi
 
+check_node_tooling() {
+  if ! command -v node >/dev/null 2>&1; then
+    echo "Node.js was not found. Install Node.js 22+ with npm 10+ and rerun setup." >&2
+    exit 1
+  fi
+  local node_major
+  node_major="$(node -p "Number(process.versions.node.split('.')[0])")"
+  if [[ "$node_major" -lt 22 ]]; then
+    echo "Node.js 22+ is required. Found $(node --version). Upgrade Node.js and rerun setup." >&2
+    exit 1
+  fi
+
+  if ! command -v npm >/dev/null 2>&1; then
+    echo "npm was not found. Install Node.js 22+ with npm 10+ and rerun setup." >&2
+    exit 1
+  fi
+  local npm_major
+  npm_major="$(npm --version | cut -d. -f1)"
+  if [[ "$npm_major" -lt 10 ]]; then
+    echo "npm 10+ is required. Found npm $(npm --version). Upgrade Node.js/npm and rerun setup." >&2
+    exit 1
+  fi
+}
+
 echo "Codex Tomogatchi setup"
 echo "Repo: $REPO_ROOT"
 
 cd "$REPO_ROOT"
 
+if [[ "$SKIP_NPM_INSTALL" -eq 0 || "$SKIP_LAUNCH" -eq 0 ]]; then
+  check_node_tooling
+fi
+
 if [[ "$SKIP_NPM_INSTALL" -eq 0 ]]; then
-  if ! command -v npm >/dev/null 2>&1; then
-    echo "npm was not found. Install Node.js LTS and rerun setup." >&2
-    exit 1
-  fi
   npm install
 fi
 
@@ -57,5 +81,12 @@ if [[ "$SKIP_LAUNCH" -eq 0 ]]; then
   npm start >/dev/null 2>&1 &
 fi
 
-echo "Setup complete."
-"${PYTHON[@]}" "$PLUGIN_SCRIPT" settings
+echo
+echo "Setup complete. Running doctor..."
+"${PYTHON[@]}" "$PLUGIN_SCRIPT" doctor
+echo
+if [[ "$SKIP_LAUNCH" -eq 0 ]]; then
+  echo "Next: look for the Codex Tomogatchi overlay or tray icon."
+else
+  echo "Next: run npm start from this repo to launch the overlay."
+fi

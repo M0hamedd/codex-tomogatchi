@@ -10,6 +10,23 @@
     <main id="overlay" class="overlay">
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+      <section id="setupPanel" class="setup-panel" aria-live="polite" hidden>
+        <div class="setup-head">
+          <div>
+            <span id="setupKicker" class="setup-kicker">Setup check</span>
+            <strong id="setupTitle">Needs attention</strong>
+          </div>
+          <button id="setupDismissButton" class="setup-dismiss" title="Dismiss" aria-label="Dismiss">&times;</button>
+        </div>
+        <p id="setupSummary" class="setup-summary"></p>
+        <ul id="setupIssueList" class="setup-issues"></ul>
+        <div class="setup-actions">
+          <button id="setupInstallButton" type="button">Install pet</button>
+          <button id="setupSyncButton" type="button">Sync</button>
+          <button id="setupDoctorButton" type="button">Doctor</button>
+        </div>
+      </section>
+
       <section class="pet-zone" aria-label="Codex Tomogatchi">
         <canvas id="petCanvas" width="192" height="208"></canvas>
         <div id="burst" class="burst" aria-hidden="true"></div>

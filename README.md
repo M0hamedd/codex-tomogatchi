@@ -76,6 +76,7 @@ Use `python3` instead of `py -3` on macOS/Linux.
 ## What You Get
 
 - Live Electron overlay with compact mode, full device mode, tray menu, resizing, and reactions.
+- First-run setup panel for missing Python, Codex logs, pet assets, and Codex pet sync.
 - Original default pet line: Sparkbit -> Byteclaw -> Coremaw.
 - XP from Codex activity, with local-only counters.
 - Care calls for `feed`, `rest`, `play`, and `comfort`.

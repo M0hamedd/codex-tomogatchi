@@ -36,6 +36,15 @@ const DEFAULT_SETTINGS = {
   overlay: { alwaysOnTop: true, startMode: "compact", startMinimized: false },
   pets: { activePack: "default", starterForm: "" },
 };
+const SETUP_CHECK_TTL_MS = 15000;
+const ACTIONABLE_DOCTOR_WARNINGS = new Set([
+  "active pet pack",
+  "Codex avatar config",
+  "Electron dependency",
+  "session logs",
+  "settings",
+  "state",
+]);
 
 let mainWindow = null;
 let tray = null;
@@ -45,6 +54,10 @@ let isQuitting = false;
 let saveBoundsTimer = null;
 let stateWatcherStarted = false;
 let overlayMode = "compact";
+let pythonRunner = null;
+let pythonRunnerChecked = false;
+let lastSetupStatus = null;
+let lastSetupCheckedAt = 0;
 
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
 
@@ -61,8 +74,56 @@ function logOverlay(event, details = {}) {
   }
 }
 
+function pythonCandidates() {
+  const candidates = [];
+  if (process.env.PYTHON) {
+    candidates.push({ command: process.env.PYTHON, prefix: [], label: process.env.PYTHON });
+  }
+  candidates.push({ command: "python", prefix: [], label: "python" });
+  candidates.push({ command: "python3", prefix: [], label: "python3" });
+  if (process.platform === "win32") {
+    candidates.push({ command: "py", prefix: ["-3"], label: "py -3" });
+  }
+  return candidates;
+}
+
+function probePython(candidate) {
+  const result = spawnSync(candidate.command, [...candidate.prefix, "--version"], {
+    encoding: "utf8",
+    windowsHide: true,
+    timeout: 5000,
+  });
+  return !result.error && result.status === 0;
+}
+
+function getPythonRunner() {
+  if (pythonRunnerChecked) {
+    return pythonRunner;
+  }
+  pythonRunnerChecked = true;
+  pythonRunner = pythonCandidates().find(probePython) || null;
+  logOverlay("python", {
+    action: pythonRunner ? "found" : "missing",
+    runner: pythonRunner ? pythonRunner.label : "",
+  });
+  return pythonRunner;
+}
+
+function missingPythonResult() {
+  return {
+    error: new Error("Python 3 was not found. Install Python 3, then reopen Codex Tomogatchi."),
+    status: null,
+    stdout: "",
+    stderr: "Python 3 was not found. Install Python 3, then reopen Codex Tomogatchi.",
+  };
+}
+
 function runPython(args, options = {}) {
-  return spawnSync("py", ["-3", PLUGIN_SCRIPT, ...args], {
+  const runner = getPythonRunner();
+  if (!runner) {
+    return missingPythonResult();
+  }
+  return spawnSync(runner.command, [...runner.prefix, PLUGIN_SCRIPT, ...args], {
     cwd: REPO_ROOT,
     encoding: "utf8",
     windowsHide: true,
@@ -76,10 +137,200 @@ function runTomogatchi(args, label, timeout = 30000) {
   if (result.error || result.status !== 0) {
     const message = result.stderr || result.error?.message || `${label} failed`;
     logOverlay(label, { action: "failed", status: result.status, message: String(message).slice(0, 240) });
+    refreshSetupStatus(true);
     throw new Error(message);
   }
   logOverlay(label, { action: "complete" });
+  clearSetupStatusCache();
   return publishSnapshot(true);
+}
+
+function clearSetupStatusCache() {
+  lastSetupStatus = null;
+  lastSetupCheckedAt = 0;
+}
+
+function parseDoctorJson(result) {
+  try {
+    return JSON.parse(result.stdout || "");
+  } catch {
+    return null;
+  }
+}
+
+function statusRank(status) {
+  if (status === "error") return 2;
+  if (status === "warn") return 1;
+  return 0;
+}
+
+function normalizeDoctorIssue(check) {
+  const name = typeof check?.name === "string" ? check.name : "setup";
+  const status = check?.status === "error" ? "error" : "warn";
+  const detail = typeof check?.detail === "string" ? check.detail : "";
+
+  if (name.startsWith("installed ") && name.endsWith(" pet")) {
+    return {
+      key: "pet-assets",
+      status,
+      title: "Pet assets need repair",
+      detail: "One or more Codex pet stage files are missing.",
+      action: "Click Install pet, then refresh Codex if the custom pet view is stale.",
+    };
+  }
+  if (name === "session logs") {
+    return {
+      key: "session-logs",
+      status,
+      title: "No Codex activity found yet",
+      detail,
+      action: "Open Codex Desktop or run Codex CLI once, then click Sync.",
+    };
+  }
+  if (name === "Codex avatar config") {
+    return {
+      key: "avatar-config",
+      status,
+      title: "Codex pet sync is not active",
+      detail,
+      action: "Click Install pet. Restart or refresh Codex if the custom pet view does not update.",
+    };
+  }
+  if (name === "active pet pack") {
+    return {
+      key: "active-pack",
+      status,
+      title: "Active pet pack could not load",
+      detail,
+      action: "Click Install pet. If this keeps failing, select the default pack from the command line.",
+    };
+  }
+  if (name === "settings") {
+    return {
+      key: "settings",
+      status,
+      title: "Settings need attention",
+      detail,
+      action: "Run setup again or fix the settings JSON shown below.",
+    };
+  }
+  if (name === "state") {
+    return {
+      key: "state",
+      status,
+      title: "Pet state needs attention",
+      detail,
+      action: "Run doctor from this panel. Use reset only if you intend to start over.",
+    };
+  }
+  if (name === "Electron dependency") {
+    return {
+      key: "electron",
+      status,
+      title: "Electron dependency is missing",
+      detail,
+      action: "For source installs, run npm install. For installer builds, reinstall the app.",
+    };
+  }
+  return {
+    key: name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "setup",
+    status,
+    title: name,
+    detail,
+    action: "Run doctor for the full setup report.",
+  };
+}
+
+function issueShouldSurface(check) {
+  if (!check || check.status === "ok") {
+    return false;
+  }
+  if (check.status === "error") {
+    return true;
+  }
+  if (app.isPackaged && check.name === "Electron dependency") {
+    return false;
+  }
+  return ACTIONABLE_DOCTOR_WARNINGS.has(check.name) || (typeof check.name === "string" && check.name.startsWith("installed "));
+}
+
+function summarizeDoctorChecks(checks) {
+  const issueMap = new Map();
+  for (const check of checks) {
+    if (!issueShouldSurface(check)) {
+      continue;
+    }
+    const issue = normalizeDoctorIssue(check);
+    const existing = issueMap.get(issue.key);
+    if (!existing || statusRank(issue.status) > statusRank(existing.status)) {
+      issueMap.set(issue.key, issue);
+    }
+  }
+  const issues = [...issueMap.values()].sort((left, right) => statusRank(right.status) - statusRank(left.status));
+  const hasErrors = issues.some((issue) => issue.status === "error");
+  return {
+    ok: !hasErrors,
+    severity: hasErrors ? "error" : issues.length ? "warn" : "ok",
+    summary: hasErrors
+      ? "Tomogatchi needs a setup fix before tracking is reliable."
+      : issues.length
+        ? "Tomogatchi is running, but a setup step is missing."
+        : "Tomogatchi setup looks ready.",
+    issues,
+  };
+}
+
+function setupStatusFromFailure(result) {
+  const detail = String(result.stderr || result.error?.message || "Doctor could not run.").trim();
+  const pythonMissing = Boolean(result.error) && /python/i.test(detail);
+  return {
+    ok: false,
+    severity: "error",
+    summary: pythonMissing ? "Python 3 is required before Tomogatchi can track Codex activity." : "Doctor could not finish.",
+    checkedAt: new Date().toISOString(),
+    checks: [],
+    python: { ok: Boolean(getPythonRunner()), runner: getPythonRunner()?.label || "" },
+    issues: [
+      {
+        key: pythonMissing ? "python" : "doctor",
+        status: "error",
+        title: pythonMissing ? "Python 3 is missing" : "Doctor failed",
+        detail,
+        action: pythonMissing ? "Install Python 3, then reopen Codex Tomogatchi." : "Run doctor again and check the overlay log if it keeps failing.",
+      },
+    ],
+  };
+}
+
+function refreshSetupStatus(force = false) {
+  const now = Date.now();
+  if (!force && lastSetupStatus && now - lastSetupCheckedAt < SETUP_CHECK_TTL_MS) {
+    return lastSetupStatus;
+  }
+
+  const result = runPython(["doctor", "--json"], { timeout: 30000 });
+  const parsed = parseDoctorJson(result);
+  if (!parsed || !Array.isArray(parsed.checks)) {
+    lastSetupStatus = setupStatusFromFailure(result);
+    lastSetupCheckedAt = now;
+    logOverlay("doctor", { action: "failed", message: lastSetupStatus.issues[0]?.detail?.slice(0, 240) || "" });
+    return lastSetupStatus;
+  }
+
+  const summary = summarizeDoctorChecks(parsed.checks);
+  lastSetupStatus = {
+    ...summary,
+    checkedAt: new Date().toISOString(),
+    checks: parsed.checks,
+    python: { ok: Boolean(getPythonRunner()), runner: getPythonRunner()?.label || "" },
+  };
+  lastSetupCheckedAt = now;
+  logOverlay("doctor", {
+    action: "complete",
+    severity: lastSetupStatus.severity,
+    issues: lastSetupStatus.issues.length,
+  });
+  return lastSetupStatus;
 }
 
 function copyBundledPetAssets() {
@@ -143,16 +394,27 @@ function startWatcherIfNeeded() {
     logOverlay("watcher", { action: "disabled" });
     return;
   }
+  const runner = getPythonRunner();
+  if (!runner) {
+    logOverlay("watcher", { action: "python-missing" });
+    return;
+  }
   if (isExternalWatcherRunning()) {
     logOverlay("watcher", { action: "reuse" });
     return;
   }
-  ownedWatcher = spawn("py", ["-3", PLUGIN_SCRIPT, "watch", "--interval", "5"], {
+  ownedWatcher = spawn(runner.command, [...runner.prefix, PLUGIN_SCRIPT, "watch", "--interval", "5"], {
     cwd: REPO_ROOT,
     stdio: "ignore",
     windowsHide: true,
   });
   logOverlay("watcher", { action: "start", pid: ownedWatcher.pid });
+  ownedWatcher.on("error", (error) => {
+    clearSetupStatusCache();
+    logOverlay("watcher", { action: "error", message: error.message });
+    ownedWatcher = null;
+    publishSnapshot(true);
+  });
   ownedWatcher.on("exit", (code, signal) => {
     logOverlay("watcher", { action: "exit", code, signal });
     ownedWatcher = null;
@@ -320,6 +582,7 @@ function readSnapshot() {
       mode: overlayMode,
       bounds: mainWindow && !mainWindow.isDestroyed() ? mainWindow.getBounds() : readOverlayState().bounds || null,
     },
+    setup: refreshSetupStatus(),
     stage,
     petPack: {
       id: typeof assets.activePetPack === "string" ? assets.activePetPack : readSettings().pets.activePack,
@@ -668,6 +931,11 @@ ipcMain.handle("tomogatchi:care", (_event, kind) => {
   return runTomogatchi(["care", kind], `care-${kind}`);
 });
 ipcMain.handle("tomogatchi:sync", () => runTomogatchi(["sync"], "sync"));
+ipcMain.handle("tomogatchi:install", () => runTomogatchi(["install"], "install"));
+ipcMain.handle("tomogatchi:doctor", () => {
+  refreshSetupStatus(true);
+  return publishSnapshot(true);
+});
 ipcMain.handle("tomogatchi:setMode", (_event, mode) => setOverlayMode(mode, "ipc"));
 ipcMain.handle("tomogatchi:resize", (_event, width, height) => resizeWindow(width, height));
 ipcMain.handle("tomogatchi:hide", () => hideWindow("ipc-hide"));

@@ -24,6 +24,15 @@ const pathValue = document.getElementById("pathValue");
 const careValue = document.getElementById("careValue");
 const focusValue = document.getElementById("focusValue");
 const workValue = document.getElementById("workValue");
+const setupPanel = document.getElementById("setupPanel");
+const setupKicker = document.getElementById("setupKicker");
+const setupTitle = document.getElementById("setupTitle");
+const setupSummary = document.getElementById("setupSummary");
+const setupIssueList = document.getElementById("setupIssueList");
+const setupDismissButton = document.getElementById("setupDismissButton");
+const setupInstallButton = document.getElementById("setupInstallButton");
+const setupSyncButton = document.getElementById("setupSyncButton");
+const setupDoctorButton = document.getElementById("setupDoctorButton");
 
 let snapshot = null;
 let sprite = new Image();
@@ -42,6 +51,7 @@ let particles = [];
 let lastDrawTime = 0;
 let overlayMode = "compact";
 let resizeState = null;
+let dismissedSetupSignature = window.localStorage.getItem("tomogatchi.dismissedSetupSignature") || "";
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -95,6 +105,68 @@ function dominantLabel(points) {
     return itemValue > bestValue ? item : best;
   });
   return pathLabel(key) || "None";
+}
+
+function setupSignature(setup) {
+  const issues = Array.isArray(setup?.issues) ? setup.issues : [];
+  return issues.map((issue) => `${issue.key}:${issue.status}:${issue.detail}`).join("|");
+}
+
+function setupNeedsAction(setup) {
+  return setup?.severity === "error" || setup?.severity === "warn";
+}
+
+function showSetupPanel(show) {
+  setupPanel.hidden = !show;
+  document.body.classList.toggle("has-setup-panel", show);
+}
+
+function renderSetupIssues(issues) {
+  setupIssueList.textContent = "";
+  const visibleIssues = issues.slice(0, 3);
+  for (const issue of visibleIssues) {
+    const item = document.createElement("li");
+    const title = document.createElement("strong");
+    const detail = document.createElement("span");
+    const action = document.createElement("em");
+    title.textContent = issue.title || "Setup issue";
+    detail.textContent = issue.detail || "";
+    action.textContent = issue.action || "Run doctor for details.";
+    item.dataset.status = issue.status === "error" ? "error" : "warn";
+    item.append(title, detail, action);
+    setupIssueList.append(item);
+  }
+  if (issues.length > visibleIssues.length) {
+    const more = document.createElement("li");
+    const title = document.createElement("strong");
+    title.textContent = `${issues.length - visibleIssues.length} more checks need attention`;
+    more.append(title);
+    setupIssueList.append(more);
+  }
+}
+
+function updateSetupPanel(setup) {
+  if (!setupNeedsAction(setup)) {
+    dismissedSetupSignature = "";
+    window.localStorage.removeItem("tomogatchi.dismissedSetupSignature");
+    showSetupPanel(false);
+    return;
+  }
+
+  const signature = setupSignature(setup);
+  if (signature && signature === dismissedSetupSignature) {
+    showSetupPanel(false);
+    return;
+  }
+
+  const issues = Array.isArray(setup.issues) ? setup.issues : [];
+  setupKicker.textContent = setup.severity === "error" ? "Setup error" : "Setup warning";
+  setupTitle.textContent = setup.severity === "error" ? "Needs a fix" : "Almost ready";
+  setupSummary.textContent = setup.summary || "Run doctor for details.";
+  renderSetupIssues(issues);
+  setupInstallButton.hidden = !issues.some((issue) => ["active-pack", "avatar-config", "pet-assets"].includes(issue.key));
+  setupSyncButton.hidden = !issues.some((issue) => issue.key === "session-logs");
+  showSetupPanel(true);
 }
 
 function formatRemaining(seconds) {
@@ -278,6 +350,7 @@ function showToast(message) {
 function applySnapshot(next) {
   snapshot = next;
   updateHud(next);
+  updateSetupPanel(next.setup);
   const status = next.lifecycle?.status || "alive";
   const rebornAt = next.lifecycle?.rebornAt || "";
   const reaction = next.reaction;
@@ -418,6 +491,19 @@ async function callCare(kind, button) {
   }
 }
 
+async function runSetupAction(button, action, successMessage) {
+  button.disabled = true;
+  try {
+    const next = await action();
+    applySnapshot(next);
+    showToast(successMessage);
+  } catch (error) {
+    showToast(error?.message || "Setup action failed");
+  } finally {
+    button.disabled = false;
+  }
+}
+
 careButtons.forEach((button) => {
   button.addEventListener("click", () => callCare(button.dataset.care, button));
 });
@@ -430,6 +516,26 @@ syncButton.addEventListener("click", async () => {
   } finally {
     syncButton.disabled = false;
   }
+});
+
+setupInstallButton.addEventListener("click", () => {
+  runSetupAction(setupInstallButton, () => window.tomogatchi.install(), "Pet install refreshed");
+});
+
+setupSyncButton.addEventListener("click", () => {
+  runSetupAction(setupSyncButton, () => window.tomogatchi.sync(), "Sync complete");
+});
+
+setupDoctorButton.addEventListener("click", () => {
+  runSetupAction(setupDoctorButton, () => window.tomogatchi.doctor(), "Doctor refreshed");
+});
+
+setupDismissButton.addEventListener("click", () => {
+  dismissedSetupSignature = setupSignature(snapshot?.setup);
+  if (dismissedSetupSignature) {
+    window.localStorage.setItem("tomogatchi.dismissedSetupSignature", dismissedSetupSignature);
+  }
+  showSetupPanel(false);
 });
 
 modeButton.addEventListener("click", async () => {

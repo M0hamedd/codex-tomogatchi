@@ -4,6 +4,8 @@ contextBridge.exposeInMainWorld("tomogatchi", {
   getSnapshot: () => ipcRenderer.invoke("tomogatchi:getSnapshot"),
   care: (kind) => ipcRenderer.invoke("tomogatchi:care", kind),
   sync: () => ipcRenderer.invoke("tomogatchi:sync"),
+  install: () => ipcRenderer.invoke("tomogatchi:install"),
+  doctor: () => ipcRenderer.invoke("tomogatchi:doctor"),
   setMode: (mode) => ipcRenderer.invoke("tomogatchi:setMode", mode),
   resize: (width, height) => ipcRenderer.invoke("tomogatchi:resize", width, height),
   hide: () => ipcRenderer.invoke("tomogatchi:hide"),

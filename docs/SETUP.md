@@ -65,6 +65,8 @@ Use `python3` instead of `py -3` on macOS/Linux.
 
 The Electron overlay is the real live surface. It updates immediately for XP, care calls, reactions, evolution, death/rebirth, compact mode, and full device mode.
 
+If first-run setup is incomplete, the overlay shows a setup panel with the detected issue and safe actions such as Install pet, Sync, and Doctor. It does not reset local pet state from the panel.
+
 Native Codex custom pet sync is optional. Codex may not refresh the selected custom pet immediately after Tomogatchi installs a new stage into `$CODEX_HOME/pets`; restart or refresh Codex if you rely on that view.
 
 ## Health Checks

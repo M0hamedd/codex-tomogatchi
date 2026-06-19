@@ -9,22 +9,54 @@ param(
 $ErrorActionPreference = "Stop"
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $PluginScript = Join-Path $RepoRoot "plugins/codex-tomogatchi/scripts/tomogatchi.py"
+$PythonCommand = $null
+
+function Test-Python3 {
+  param(
+    [string]$Command,
+    [string[]]$Prefix = @()
+  )
+  try {
+    & $Command @Prefix -c "import sys; raise SystemExit(0 if sys.version_info[0] == 3 else 1)" *> $null
+    return $LASTEXITCODE -eq 0
+  } catch {
+    return $false
+  }
+}
+
+function Get-PythonCommand {
+  if ($script:PythonCommand) {
+    return $script:PythonCommand
+  }
+
+  $Candidates = @()
+  if ($env:PYTHON) {
+    $Candidates += [pscustomobject]@{ Command = $env:PYTHON; Prefix = @(); Label = '$env:PYTHON' }
+  }
+  $Candidates += [pscustomobject]@{ Command = "python"; Prefix = @(); Label = "python" }
+  $Candidates += [pscustomobject]@{ Command = "python3"; Prefix = @(); Label = "python3" }
+  $Candidates += [pscustomobject]@{ Command = "py"; Prefix = @("-3"); Label = "py -3" }
+
+  foreach ($Candidate in $Candidates) {
+    if ($Candidate.Label -ne '$env:PYTHON' -and -not (Get-Command $Candidate.Command -ErrorAction SilentlyContinue)) {
+      continue
+    }
+    if (Test-Python3 -Command $Candidate.Command -Prefix $Candidate.Prefix) {
+      $script:PythonCommand = $Candidate
+      return $script:PythonCommand
+    }
+  }
+
+  throw "Python 3 was not found. Install Python 3, or set PYTHON to a Python 3 executable, and rerun setup."
+}
 
 function Invoke-Python {
   param([string[]]$Arguments)
-  if (Get-Command py -ErrorAction SilentlyContinue) {
-    & py -3 @Arguments
-    return
-  }
-  if (Get-Command python3 -ErrorAction SilentlyContinue) {
-    & python3 @Arguments
-    return
-  }
-  if (Get-Command python -ErrorAction SilentlyContinue) {
-    & python @Arguments
-    return
-  }
-  throw "Python 3 was not found. Install Python 3 and rerun setup."
+  $Python = Get-PythonCommand
+  $AllArguments = @()
+  $AllArguments += $Python.Prefix
+  $AllArguments += $Arguments
+  & $Python.Command @AllArguments
 }
 
 function Invoke-Optional {

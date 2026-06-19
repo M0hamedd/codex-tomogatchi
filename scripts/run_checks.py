@@ -19,8 +19,11 @@ def run(command: list[str]) -> None:
 def main() -> int:
     run([sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"])
     run(["node", "--check", "overlay/main.js"])
+    run(["node", "--check", "overlay/default_settings.js"])
     run(["node", "--check", "overlay/preload.js"])
     run(["node", "--check", "overlay/renderer.js"])
+    run(["node", "--check", "scripts/smoke_packaged_overlay.js"])
+    run([sys.executable, "scripts/validate_defaults.py"])
     run([sys.executable, "scripts/validate_assets.py"])
     run([sys.executable, "plugins/codex-tomogatchi/scripts/tomogatchi.py", "pets", "validate", "examples/pet-packs/digimon-world-1-agumon"])
     run([sys.executable, "plugins/codex-tomogatchi/scripts/tomogatchi.py", "pets", "validate", "examples/pet-packs/tuxemon-open-61"])

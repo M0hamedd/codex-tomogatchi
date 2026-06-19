@@ -20,12 +20,19 @@ for arg in "$@"; do
   esac
 done
 
-if command -v python3 >/dev/null 2>&1; then
-  PYTHON=(python3)
-elif command -v python >/dev/null 2>&1; then
-  PYTHON=(python)
+test_python3() {
+  "$@" -c "import sys; raise SystemExit(0 if sys.version_info[0] == 3 else 1)" >/dev/null 2>&1
+}
+
+PYTHON_CMD=()
+if [[ -n "${PYTHON:-}" ]] && test_python3 "$PYTHON"; then
+  PYTHON_CMD=("$PYTHON")
+elif command -v python >/dev/null 2>&1 && test_python3 python; then
+  PYTHON_CMD=(python)
+elif command -v python3 >/dev/null 2>&1 && test_python3 python3; then
+  PYTHON_CMD=(python3)
 else
-  echo "Python 3 was not found." >&2
+  echo "Python 3 was not found. Install Python 3, or set PYTHON to a Python 3 executable." >&2
   exit 1
 fi
 
@@ -66,11 +73,11 @@ if [[ "$SKIP_NPM_INSTALL" -eq 0 ]]; then
   npm install
 fi
 
-"${PYTHON[@]}" "$PLUGIN_SCRIPT" settings --init
-"${PYTHON[@]}" "$PLUGIN_SCRIPT" install
+"${PYTHON_CMD[@]}" "$PLUGIN_SCRIPT" settings --init
+"${PYTHON_CMD[@]}" "$PLUGIN_SCRIPT" install
 
 if [[ "$SKIP_RESET" -eq 0 ]]; then
-  "${PYTHON[@]}" "$PLUGIN_SCRIPT" reset --confirm --from-now
+  "${PYTHON_CMD[@]}" "$PLUGIN_SCRIPT" reset --confirm --from-now
 fi
 
 if [[ "$SKIP_MARKETPLACE" -eq 0 ]] && command -v codex >/dev/null 2>&1; then
@@ -83,7 +90,7 @@ fi
 
 echo
 echo "Setup complete. Running doctor..."
-"${PYTHON[@]}" "$PLUGIN_SCRIPT" doctor
+"${PYTHON_CMD[@]}" "$PLUGIN_SCRIPT" doctor
 echo
 if [[ "$SKIP_LAUNCH" -eq 0 ]]; then
   echo "Next: look for the Codex Tomogatchi overlay or tray icon."

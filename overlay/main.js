@@ -4,9 +4,10 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { spawn, spawnSync } = require("child_process");
+const { loadDefaultSettings } = require("./default_settings");
 
 const APP_ROOT = app.isPackaged ? process.resourcesPath : path.resolve(__dirname, "..");
-const REPO_ROOT = path.resolve(__dirname, "..");
+const REPO_ROOT = APP_ROOT;
 const PLUGIN_ROOT = path.join(APP_ROOT, "plugins", "codex-tomogatchi");
 const PLUGIN_SCRIPT = path.join(PLUGIN_ROOT, "scripts", "tomogatchi.py");
 const CODEX_HOME = process.env.CODEX_HOME || path.join(os.homedir(), ".codex");
@@ -29,13 +30,7 @@ const FRAME = {
   rowFrames: [6, 8, 8, 4, 5, 8, 6, 6, 6],
 };
 
-const DEFAULT_SETTINGS = {
-  xp: { pace: "normal" },
-  lifecycle: { deathEnabled: true },
-  care: { callStrictness: "normal" },
-  overlay: { alwaysOnTop: true, startMode: "compact", startMinimized: false },
-  pets: { activePack: "default", starterForm: "" },
-};
+const DEFAULT_SETTINGS = loadDefaultSettings(APP_ROOT);
 const SETUP_CHECK_TTL_MS = 15000;
 const ACTIONABLE_DOCTOR_WARNINGS = new Set([
   "active pet pack",
@@ -88,8 +83,12 @@ function pythonCandidates() {
 }
 
 function probePython(candidate) {
-  const result = spawnSync(candidate.command, [...candidate.prefix, "--version"], {
-    encoding: "utf8",
+  const result = spawnSync(candidate.command, [
+    ...candidate.prefix,
+    "-c",
+    "import sys; raise SystemExit(0 if sys.version_info[0] == 3 else 1)",
+  ], {
+    stdio: "ignore",
     windowsHide: true,
     timeout: 5000,
   });

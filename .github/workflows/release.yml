@@ -42,6 +42,9 @@ jobs:
       - name: Build Windows app
         run: npm run dist:win -- --publish never
 
+      - name: Smoke packaged app
+        run: npm run smoke:packaged
+
       - name: Add stable installer alias
         shell: pwsh
         run: |

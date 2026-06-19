@@ -103,7 +103,7 @@ DEFAULT_REACTION = {
     "expiresAt": "",
 }
 
-DEFAULT_SETTINGS = {
+FALLBACK_DEFAULT_SETTINGS = {
     "xp": {
         "pace": "normal",
     },
@@ -123,6 +123,32 @@ DEFAULT_SETTINGS = {
         "starterForm": "",
     },
 }
+
+
+def default_settings_path_candidates() -> list[Path]:
+    candidates: list[Path] = []
+    override = os.environ.get("CODEX_TOMOGATCHI_DEFAULT_SETTINGS")
+    if override:
+        candidates.append(Path(override).expanduser().resolve())
+    candidates.append(PLUGIN_ROOT.parents[1] / "config" / "default-settings.json")
+    return candidates
+
+
+def load_default_settings() -> dict[str, Any]:
+    for candidate in default_settings_path_candidates():
+        if not candidate.exists():
+            continue
+        try:
+            data = json.loads(candidate.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"Default settings file is not valid JSON: {candidate} ({exc})") from exc
+        if not isinstance(data, dict):
+            raise RuntimeError(f"Default settings file must contain an object: {candidate}")
+        return data
+    return deepcopy(FALLBACK_DEFAULT_SETTINGS)
+
+
+DEFAULT_SETTINGS = load_default_settings()
 
 DEFAULT_CARE_CALL = {
     "sequence": 0,

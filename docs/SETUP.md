@@ -37,6 +37,8 @@ The setup script installs npm dependencies when needed, initializes settings, in
 The npm commands automatically look for Python 3 in this order: `PYTHON`, `python`, `python3`, then Windows `py -3`.
 Most command examples use PowerShell paths; on macOS/Linux, use `python3` and `/` paths.
 
+Hook integration is owned by the plugin manifest at `plugins/codex-tomogatchi/hooks/hooks.json`; root `.codex/` files are local workspace state and are not part of the public repo.
+
 Use Windows autostart:
 
 ```powershell

@@ -16,13 +16,10 @@ if (process.env.PYTHON) {
   candidates.push({ command: process.env.PYTHON, prefix: [], label: "$PYTHON" });
 }
 
+// Keep this order aligned with setup.ps1, setup.sh, and overlay/main.js.
+candidates.push({ command: "python", prefix: [], label: "python" });
+candidates.push({ command: "python3", prefix: [], label: "python3" });
 if (process.platform === "win32") {
-  candidates.push({ command: "python", prefix: [], label: "python" });
-  candidates.push({ command: "python3", prefix: [], label: "python3" });
-  candidates.push({ command: "py", prefix: ["-3"], label: "py -3" });
-} else {
-  candidates.push({ command: "python3", prefix: [], label: "python3" });
-  candidates.push({ command: "python", prefix: [], label: "python" });
   candidates.push({ command: "py", prefix: ["-3"], label: "py -3" });
 }
 

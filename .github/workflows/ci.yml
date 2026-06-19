@@ -35,6 +35,12 @@ jobs:
       - name: Run checks
         run: npm test
 
+      - name: Build unpacked app
+        run: npm run package
+
+      - name: Smoke packaged app
+        run: npm run smoke:packaged
+
       - name: Validate plugin manifest when validator is available
         shell: pwsh
         run: |
